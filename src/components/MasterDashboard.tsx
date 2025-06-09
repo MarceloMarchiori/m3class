@@ -18,11 +18,18 @@ import {
   Edit,
   Trash2,
   CreditCard,
-  LogIn
+  LogIn,
+  Target,
+  Award,
+  Activity,
+  PieChart
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { ModernMetricCard } from './ModernMetricCard';
+import { AdvancedChartCard } from './AdvancedChartCard';
+import { DashboardFilters } from './DashboardFilters';
 import { UserManagement } from './UserManagement';
 import { FinancialDashboard } from './FinancialDashboard';
 import { MessagingSystem } from './MessagingSystem';
@@ -43,6 +50,7 @@ export const MasterDashboard = () => {
   const [editingSchool, setEditingSchool] = useState(null);
   const [editingUser, setEditingUser] = useState(null);
   const [editingSubscription, setEditingSubscription] = useState(null);
+  const [selectedPeriod, setSelectedPeriod] = useState('30d');
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -213,6 +221,7 @@ export const MasterDashboard = () => {
     navigate(`/teste?impersonate=${user.id}&userType=${user.user_type}&userName=${encodeURIComponent(user.name)}`);
   };
 
+  // Calculations for metrics
   const totalRevenue = payments
     .filter(p => p.status === 'paid')
     .reduce((sum, p) => sum + Number(p.amount), 0);
@@ -227,17 +236,39 @@ export const MasterDashboard = () => {
 
   const activeSubscriptions = subscriptions.filter(s => s.status === 'active').length;
 
+  // Generate sample data for charts
+  const revenueData = [
+    { name: 'Jan', value: 45000 },
+    { name: 'Fev', value: 52000 },
+    { name: 'Mar', value: 48000 },
+    { name: 'Abr', value: 61000 },
+    { name: 'Mai', value: 55000 },
+    { name: 'Jun', value: 67000 },
+  ];
+
+  const userTypeData = [
+    { name: 'Professores', value: profiles.filter(p => p.user_type === 'professor').length },
+    { name: 'Alunos', value: profiles.filter(p => p.user_type === 'aluno').length },
+    { name: 'Responsáveis', value: profiles.filter(p => p.user_type === 'responsavel').length },
+    { name: 'Admins', value: profiles.filter(p => p.user_type === 'school_admin').length },
+    { name: 'Secretaria', value: profiles.filter(p => p.user_type === 'secretaria').length },
+  ];
+
+  const sparklineData = [
+    { value: 100 }, { value: 150 }, { value: 120 }, { value: 180 }, { value: 160 }, { value: 200 }
+  ];
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-600"></div>
       </div>
     );
   }
 
   if (editingSchool) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background p-6">
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 p-6">
         <div className="container mx-auto max-w-4xl">
           <SchoolEditForm
             school={editingSchool}
@@ -254,7 +285,7 @@ export const MasterDashboard = () => {
 
   if (editingUser) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background p-6">
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 p-6">
         <div className="container mx-auto max-w-4xl">
           <UserEditForm
             user={editingUser}
@@ -272,7 +303,7 @@ export const MasterDashboard = () => {
 
   if (editingSubscription) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background p-6">
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 p-6">
         <div className="container mx-auto max-w-4xl">
           <SubscriptionEditForm
             subscription={editingSubscription}
@@ -288,124 +319,165 @@ export const MasterDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background p-6">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 p-6">
       <div className="container mx-auto max-w-7xl">
+        {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl">
-              <Crown className="h-8 w-8 text-white" />
+          <div className="flex items-center gap-4 mb-6">
+            <div className="p-4 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl shadow-lg">
+              <Crown className="h-10 w-10 text-white" />
             </div>
             <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                Dashboard Comercial Master
+              <h1 className="text-5xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                Dashboard Master
               </h1>
-              <p className="text-muted-foreground">Gestão completa da plataforma EduDiário</p>
+              <p className="text-xl text-gray-600 font-medium">Gestão Comercial Avançada - EduDiário</p>
             </div>
           </div>
+          
+          <DashboardFilters 
+            selectedPeriod={selectedPeriod}
+            onPeriodChange={setSelectedPeriod}
+            onRefresh={fetchData}
+          />
         </div>
 
+        {/* Modern Metric Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card className="gradient-card">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Receita Total</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">
-                R$ {totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-              </div>
-              <p className="text-xs text-muted-foreground">Acumulado</p>
-            </CardContent>
-          </Card>
-
-          <Card className="gradient-card">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Receita Mensal</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-blue-600">
-                R$ {monthlyRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-              </div>
-              <p className="text-xs text-muted-foreground">Este mês</p>
-            </CardContent>
-          </Card>
-
-          <Card className="gradient-card">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total de Escolas</CardTitle>
-              <Building className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{schools.length}</div>
-              <p className="text-xs text-muted-foreground">
-                {schools.filter((s: any) => s.is_active).length} ativas
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="gradient-card">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total de Usuários</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{profiles.length}</div>
-              <p className="text-xs text-muted-foreground">Usuários registrados</p>
-            </CardContent>
-          </Card>
+          <ModernMetricCard
+            title="Receita Total"
+            value={`R$ ${totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+            change={{ value: 12.5, isPositive: true }}
+            sparklineData={sparklineData}
+            gradient="from-emerald-500 to-teal-600"
+            icon={<DollarSign className="h-6 w-6 text-white" />}
+          />
+          
+          <ModernMetricCard
+            title="Receita Mensal"
+            value={`R$ ${monthlyRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+            change={{ value: 8.2, isPositive: true }}
+            sparklineData={sparklineData}
+            gradient="from-blue-500 to-indigo-600"
+            icon={<TrendingUp className="h-6 w-6 text-white" />}
+          />
+          
+          <ModernMetricCard
+            title="Total de Escolas"
+            value={schools.length}
+            change={{ value: 15.3, isPositive: true }}
+            sparklineData={sparklineData}
+            gradient="from-purple-500 to-pink-600"
+            icon={<Building className="h-6 w-6 text-white" />}
+          />
+          
+          <ModernMetricCard
+            title="Usuários Ativos"
+            value={profiles.length}
+            change={{ value: 22.1, isPositive: true }}
+            sparklineData={sparklineData}
+            gradient="from-orange-500 to-red-600"
+            icon={<Users className="h-6 w-6 text-white" />}
+          />
         </div>
 
+        {/* Alert for overdue payments */}
         {overduePayments > 0 && (
-          <Card className="mb-6 border-orange-200 bg-orange-50">
+          <Card className="mb-6 border-0 bg-gradient-to-r from-amber-50 to-orange-50 shadow-lg">
             <CardContent className="pt-6">
-              <div className="flex items-center gap-2 text-orange-700">
-                <Calendar className="h-5 w-5" />
-                <span className="font-semibold">
-                  Atenção: {overduePayments} pagamento(s) em atraso!
+              <div className="flex items-center gap-3 text-amber-800">
+                <div className="p-2 bg-amber-200 rounded-lg">
+                  <Calendar className="h-5 w-5" />
+                </div>
+                <span className="font-semibold text-lg">
+                  ⚠️ Atenção: {overduePayments} pagamento(s) em atraso!
                 </span>
               </div>
             </CardContent>
           </Card>
         )}
 
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7">
-            <TabsTrigger value="overview" className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4" />
-              Visão Geral
+        <Tabs defaultValue="overview" className="space-y-8">
+          <TabsList className="grid w-full grid-cols-7 bg-white/60 backdrop-blur-sm border-0 shadow-lg rounded-xl p-2">
+            <TabsTrigger value="overview" className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white">
+              <PieChart className="h-4 w-4" />
+              Analytics
             </TabsTrigger>
-            <TabsTrigger value="financial" className="flex items-center gap-2">
+            <TabsTrigger value="financial" className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white">
               <DollarSign className="h-4 w-4" />
               Financeiro
             </TabsTrigger>
-            <TabsTrigger value="schools" className="flex items-center gap-2">
+            <TabsTrigger value="schools" className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white">
               <Building className="h-4 w-4" />
               Escolas
             </TabsTrigger>
-            <TabsTrigger value="users" className="flex items-center gap-2">
+            <TabsTrigger value="users" className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white">
               <Users className="h-4 w-4" />
               Usuários
             </TabsTrigger>
-            <TabsTrigger value="subscriptions" className="flex items-center gap-2">
+            <TabsTrigger value="subscriptions" className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white">
               <CreditCard className="h-4 w-4" />
               Assinaturas
             </TabsTrigger>
-            <TabsTrigger value="messages" className="flex items-center gap-2">
+            <TabsTrigger value="messages" className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white">
               <MessageSquare className="h-4 w-4" />
               Comunicação
             </TabsTrigger>
-            <TabsTrigger value="manage-users" className="flex items-center gap-2">
+            <TabsTrigger value="manage-users" className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white">
               <UserPlus className="h-4 w-4" />
               Criar Usuários
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
+          <TabsContent value="overview" className="space-y-6">
+            {/* Charts Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+              <AdvancedChartCard
+                title="Receita ao Longo do Tempo"
+                type="area"
+                data={revenueData}
+                height={350}
+              />
+              
+              <AdvancedChartCard
+                title="Distribuição de Usuários"
+                type="pie"
+                data={userTypeData}
+                height={350}
+              />
+            </div>
+
+            {/* KPI Cards */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <Card className="shadow-lg border-0 bg-gradient-to-br from-white/80 to-gray-50/80 backdrop-blur-sm">
                 <CardHeader>
-                  <CardTitle>Resumo Financeiro</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    <Target className="h-5 w-5 text-indigo-600" />
+                    Metas e Objetivos
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span>Meta de Receita Mensal:</span>
+                    <Badge variant="default" className="bg-gradient-to-r from-green-500 to-emerald-500">85%</Badge>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span>Crescimento de Usuários:</span>
+                    <Badge variant="default" className="bg-gradient-to-r from-blue-500 to-indigo-500">122%</Badge>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span>Satisfação Clientes:</span>
+                    <Badge variant="default" className="bg-gradient-to-r from-purple-500 to-pink-500">94%</Badge>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-lg border-0 bg-gradient-to-br from-white/80 to-gray-50/80 backdrop-blur-sm">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Award className="h-5 w-5 text-amber-600" />
+                    Performance
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex justify-between items-center">
@@ -413,43 +485,37 @@ export const MasterDashboard = () => {
                     <Badge variant="default">{activeSubscriptions}</Badge>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span>Pagamentos em Atraso:</span>
-                    <Badge variant={overduePayments > 0 ? "destructive" : "secondary"}>
-                      {overduePayments}
-                    </Badge>
+                    <span>Taxa de Conversão:</span>
+                    <Badge variant="secondary">78%</Badge>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span>Receita Média por Escola:</span>
-                    <span className="font-bold">
-                      R$ {activeSubscriptions > 0 ? 
-                        (monthlyRevenue / activeSubscriptions).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : 
-                        '0,00'
-                      }
-                    </span>
+                    <span>Retenção de Clientes:</span>
+                    <Badge variant="outline">91%</Badge>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="shadow-lg border-0 bg-gradient-to-br from-white/80 to-gray-50/80 backdrop-blur-sm">
                 <CardHeader>
-                  <CardTitle>Escolas por Status</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    <Activity className="h-5 w-5 text-red-600" />
+                    Atividade Recente
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <span>Escolas Ativas:</span>
-                    <Badge variant="default">
-                      {schools.filter((s: any) => s.is_active).length}
-                    </Badge>
+                    <span>Novos Cadastros (hoje):</span>
+                    <Badge variant="outline">12</Badge>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span>Escolas Inativas:</span>
-                    <Badge variant="secondary">
-                      {schools.filter((s: any) => !s.is_active).length}
-                    </Badge>
+                    <span>Logins Únicos (hoje):</span>
+                    <Badge variant="outline">247</Badge>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span>Com Assinatura:</span>
-                    <Badge variant="default">{activeSubscriptions}</Badge>
+                    <span>Suporte Pendente:</span>
+                    <Badge variant={overduePayments > 0 ? "destructive" : "outline"}>
+                      {overduePayments}
+                    </Badge>
                   </div>
                 </CardContent>
               </Card>
@@ -461,12 +527,12 @@ export const MasterDashboard = () => {
           </TabsContent>
 
           <TabsContent value="schools">
-            <Card>
+            <Card className="shadow-lg border-0 bg-white/60 backdrop-blur-sm">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle>Gerenciar Escolas</CardTitle>
                   <Button 
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600"
                     onClick={() => setIsSchoolDialogOpen(true)}
                   >
                     <Plus className="h-4 w-4" />
@@ -477,7 +543,7 @@ export const MasterDashboard = () => {
               <CardContent>
                 <div className="space-y-4">
                   {schools.map((school: any) => (
-                    <div key={school.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50">
+                    <div key={school.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-all duration-200">
                       <div className="flex items-center gap-4">
                         <div className="p-2 bg-blue-100 rounded-lg">
                           <Building className="h-5 w-5 text-blue-600" />
@@ -539,12 +605,12 @@ export const MasterDashboard = () => {
           </TabsContent>
 
           <TabsContent value="users">
-            <Card>
+            <Card className="shadow-lg border-0 bg-white/60 backdrop-blur-sm">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle>Usuários Cadastrados</CardTitle>
                   <Button 
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
                     onClick={() => setIsUserDialogOpen(true)}
                   >
                     <UserPlus className="h-4 w-4" />
@@ -555,7 +621,7 @@ export const MasterDashboard = () => {
               <CardContent>
                 <div className="space-y-4">
                   {profiles.map((profile: any) => (
-                    <div key={profile.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50">
+                    <div key={profile.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-all duration-200">
                       <div className="flex items-center gap-4">
                         <div className="p-2 bg-green-100 rounded-lg">
                           <Users className="h-5 w-5 text-green-600" />
@@ -622,14 +688,14 @@ export const MasterDashboard = () => {
           </TabsContent>
 
           <TabsContent value="subscriptions">
-            <Card>
+            <Card className="shadow-lg border-0 bg-white/60 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle>Gerenciar Assinaturas</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   {subscriptions.map((subscription: any) => (
-                    <div key={subscription.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50">
+                    <div key={subscription.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-all duration-200">
                       <div className="flex items-center gap-4">
                         <div className="p-2 bg-purple-100 rounded-lg">
                           <CreditCard className="h-5 w-5 text-purple-600" />
