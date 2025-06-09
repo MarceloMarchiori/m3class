@@ -25,6 +25,9 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Lista de rotas públicas que não devem ser redirecionadas para login
+const PUBLIC_ROUTES = ['/', '/teste'];
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -74,8 +77,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } else {
           setProfile(null);
           setLoading(false);
-          // Só redirecionar para login se não estiver já na página de login
-          if (window.location.pathname !== '/') {
+          
+          // Só redirecionar para login se não estiver em uma rota pública
+          const currentPath = window.location.pathname;
+          const isPublicRoute = PUBLIC_ROUTES.includes(currentPath);
+          
+          if (!isPublicRoute) {
             navigate('/');
           }
         }
