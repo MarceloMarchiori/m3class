@@ -114,8 +114,8 @@ export const MasterDashboard = () => {
     return labels[userType as keyof typeof labels] || userType;
   };
 
-  const getUserTypeBadgeVariant = (userType: string) => {
-    const variants = {
+  const getUserTypeBadgeVariant = (userType: string): "default" | "destructive" | "outline" | "secondary" => {
+    const variants: Record<string, "default" | "destructive" | "outline" | "secondary"> = {
       master: 'default',
       school_admin: 'secondary',
       professor: 'outline',
@@ -123,7 +123,7 @@ export const MasterDashboard = () => {
       responsavel: 'outline',
       secretaria: 'outline'
     };
-    return variants[userType as keyof typeof variants] || 'outline';
+    return variants[userType] || 'outline';
   };
 
   if (loading) {
