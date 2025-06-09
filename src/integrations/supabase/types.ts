@@ -9,6 +9,101 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      messages: {
+        Row: {
+          content: string
+          from_user_id: string
+          id: string
+          is_read: boolean
+          message_type: string
+          sent_at: string
+          subject: string
+          to_school_id: string | null
+        }
+        Insert: {
+          content: string
+          from_user_id: string
+          id?: string
+          is_read?: boolean
+          message_type?: string
+          sent_at?: string
+          subject: string
+          to_school_id?: string | null
+        }
+        Update: {
+          content?: string
+          from_user_id?: string
+          id?: string
+          is_read?: boolean
+          message_type?: string
+          sent_at?: string
+          subject?: string
+          to_school_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_to_school_id_fkey"
+            columns: ["to_school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_history: {
+        Row: {
+          amount: number
+          created_at: string
+          due_date: string
+          id: string
+          notes: string | null
+          paid_date: string | null
+          payment_method: string | null
+          school_id: string
+          status: string
+          subscription_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          due_date: string
+          id?: string
+          notes?: string | null
+          paid_date?: string | null
+          payment_method?: string | null
+          school_id: string
+          status?: string
+          subscription_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          due_date?: string
+          id?: string
+          notes?: string | null
+          paid_date?: string | null
+          payment_method?: string | null
+          school_id?: string
+          status?: string
+          subscription_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_history_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_history_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "school_subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -50,6 +145,91 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "fk_profiles_school"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      school_contracts: {
+        Row: {
+          contract_number: string
+          created_at: string
+          end_date: string | null
+          id: string
+          school_id: string
+          start_date: string
+          status: string
+          terms: string | null
+          updated_at: string
+        }
+        Insert: {
+          contract_number: string
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          school_id: string
+          start_date: string
+          status?: string
+          terms?: string | null
+          updated_at?: string
+        }
+        Update: {
+          contract_number?: string
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          school_id?: string
+          start_date?: string
+          status?: string
+          terms?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_contracts_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      school_subscriptions: {
+        Row: {
+          created_at: string
+          due_day: number
+          id: string
+          monthly_value: number
+          plan_name: string
+          school_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          due_day?: number
+          id?: string
+          monthly_value: number
+          plan_name?: string
+          school_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          due_day?: number
+          id?: string
+          monthly_value?: number
+          plan_name?: string
+          school_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_subscriptions_school_id_fkey"
             columns: ["school_id"]
             isOneToOne: false
             referencedRelation: "schools"
@@ -107,6 +287,10 @@ export type Database = {
       can_access_school: {
         Args: { school_uuid: string }
         Returns: boolean
+      }
+      generate_monthly_payments: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       is_master_user: {
         Args: Record<PropertyKey, never>

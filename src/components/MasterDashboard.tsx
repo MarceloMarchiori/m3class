@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,14 +7,30 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Building, Plus, Users, School, Crown, Edit, Trash2 } from 'lucide-react';
+import { 
+  Building, 
+  Plus, 
+  Users, 
+  School, 
+  Crown, 
+  DollarSign,
+  MessageSquare,
+  FileText,
+  TrendingUp,
+  Calendar,
+  Settings
+} from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { UserManagement } from './UserManagement';
+import { FinancialDashboard } from './FinancialDashboard';
+import { MessagingSystem } from './MessagingSystem';
 
 export const MasterDashboard = () => {
   const [schools, setSchools] = useState([]);
   const [profiles, setProfiles] = useState([]);
+  const [subscriptions, setSubscriptions] = useState([]);
+  const [payments, setPayments] = useState([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -50,8 +67,26 @@ export const MasterDashboard = () => {
 
       if (profilesError) throw profilesError;
 
+      // Buscar assinaturas
+      const { data: subscriptionsData, error: subscriptionsError } = await supabase
+        .from('school_subscriptions')
+        .select('*, schools(name)')
+        .order('created_at', { ascending: false });
+
+      if (subscriptionsError) throw subscriptionsError;
+
+      // Buscar pagamentos
+      const { data: paymentsData, error: paymentsError } = await supabase
+        .from('payment_history')
+        .select('*')
+        .order('due_date', { ascending: false });
+
+      if (paymentsError) throw paymentsError;
+
       setSchools(schoolsData || []);
       setProfiles(profilesData || []);
+      setSubscriptions(subscriptionsData || []);
+      setPayments(paymentsData || []);
     } catch (error) {
       console.error('Error fetching data:', error);
       toast({
@@ -126,6 +161,21 @@ export const MasterDashboard = () => {
     return variants[userType] || 'outline';
   };
 
+  // Calcular estatísticas
+  const totalRevenue = payments
+    .filter(p => p.status === 'paid')
+    .reduce((sum, p) => sum + Number(p.amount), 0);
+
+  const monthlyRevenue = payments
+    .filter(p => p.status === 'paid' && new Date(p.paid_date).getMonth() === new Date().getMonth())
+    .reduce((sum, p) => sum + Number(p.amount), 0);
+
+  const overduePayments = payments.filter(p => 
+    p.status === 'pending' && new Date(p.due_date) < new Date()
+  ).length;
+
+  const activeSubscriptions = subscriptions.filter(s => s.status === 'active').length;
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -145,15 +195,41 @@ export const MasterDashboard = () => {
             </div>
             <div>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                Painel Master
+                Dashboard Comercial Master
               </h1>
-              <p className="text-muted-foreground">Gerencie escolas e usuários da plataforma</p>
+              <p className="text-muted-foreground">Gestão completa da plataforma EduDiário</p>
             </div>
           </div>
         </div>
 
-        {/* Cards de Estatísticas */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        {/* Cards de Estatísticas Principais */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <Card className="gradient-card">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Receita Total</CardTitle>
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-600">
+                R$ {totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </div>
+              <p className="text-xs text-muted-foreground">Acumulado</p>
+            </CardContent>
+          </Card>
+
+          <Card className="gradient-card">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Receita Mensal</CardTitle>
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-blue-600">
+                R$ {monthlyRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </div>
+              <p className="text-xs text-muted-foreground">Este mês</p>
+            </CardContent>
+          </Card>
+
           <Card className="gradient-card">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total de Escolas</CardTitle>
@@ -161,7 +237,9 @@ export const MasterDashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{schools.length}</div>
-              <p className="text-xs text-muted-foreground">Escolas cadastradas</p>
+              <p className="text-xs text-muted-foreground">
+                {schools.filter((s: any) => s.is_active).length} ativas
+              </p>
             </CardContent>
           </Card>
 
@@ -175,24 +253,33 @@ export const MasterDashboard = () => {
               <p className="text-xs text-muted-foreground">Usuários registrados</p>
             </CardContent>
           </Card>
-
-          <Card className="gradient-card">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Escolas Ativas</CardTitle>
-              <School className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {schools.filter((school: any) => school.is_active).length}
-              </div>
-              <p className="text-xs text-muted-foreground">Escolas em funcionamento</p>
-            </CardContent>
-          </Card>
         </div>
 
+        {/* Alertas importantes */}
+        {overduePayments > 0 && (
+          <Card className="mb-6 border-orange-200 bg-orange-50">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-2 text-orange-700">
+                <Calendar className="h-5 w-5" />
+                <span className="font-semibold">
+                  Atenção: {overduePayments} pagamento(s) em atraso!
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Tabs principais */}
-        <Tabs defaultValue="schools" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-6">
+            <TabsTrigger value="overview" className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" />
+              Visão Geral
+            </TabsTrigger>
+            <TabsTrigger value="financial" className="flex items-center gap-2">
+              <DollarSign className="h-4 w-4" />
+              Financeiro
+            </TabsTrigger>
             <TabsTrigger value="schools" className="flex items-center gap-2">
               <Building className="h-4 w-4" />
               Escolas
@@ -201,11 +288,76 @@ export const MasterDashboard = () => {
               <Users className="h-4 w-4" />
               Usuários
             </TabsTrigger>
+            <TabsTrigger value="messages" className="flex items-center gap-2">
+              <MessageSquare className="h-4 w-4" />
+              Comunicação
+            </TabsTrigger>
             <TabsTrigger value="manage-users" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
               Criar Usuários
             </TabsTrigger>
           </TabsList>
+
+          {/* Tab de Visão Geral */}
+          <TabsContent value="overview">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Resumo Financeiro</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span>Assinaturas Ativas:</span>
+                    <Badge variant="default">{activeSubscriptions}</Badge>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span>Pagamentos em Atraso:</span>
+                    <Badge variant={overduePayments > 0 ? "destructive" : "secondary"}>
+                      {overduePayments}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span>Receita Média por Escola:</span>
+                    <span className="font-bold">
+                      R$ {activeSubscriptions > 0 ? 
+                        (monthlyRevenue / activeSubscriptions).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : 
+                        '0,00'
+                      }
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Escolas por Status</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span>Escolas Ativas:</span>
+                    <Badge variant="default">
+                      {schools.filter((s: any) => s.is_active).length}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span>Escolas Inativas:</span>
+                    <Badge variant="secondary">
+                      {schools.filter((s: any) => !s.is_active).length}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span>Com Assinatura:</span>
+                    <Badge variant="default">{activeSubscriptions}</Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* Tab Financeiro */}
+          <TabsContent value="financial">
+            <FinancialDashboard />
+          </TabsContent>
 
           {/* Tab de Escolas */}
           <TabsContent value="schools">
@@ -313,6 +465,9 @@ export const MasterDashboard = () => {
                         <Badge variant={school.is_active ? 'default' : 'secondary'}>
                           {school.is_active ? 'Ativa' : 'Inativa'}
                         </Badge>
+                        {subscriptions.find((s: any) => s.school_id === school.id) && (
+                          <Badge variant="outline">Com Assinatura</Badge>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -355,6 +510,11 @@ export const MasterDashboard = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Tab de Comunicação */}
+          <TabsContent value="messages">
+            <MessagingSystem />
           </TabsContent>
 
           {/* Tab de Gerenciar Usuários */}
