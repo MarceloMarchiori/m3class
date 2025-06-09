@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Building, Plus, Users, School, Crown, Edit, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { UserManagement } from './UserManagement';
 
 export const MasterDashboard = () => {
   const [schools, setSchools] = useState([]);
@@ -192,7 +192,7 @@ export const MasterDashboard = () => {
 
         {/* Tabs principais */}
         <Tabs defaultValue="schools" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="schools" className="flex items-center gap-2">
               <Building className="h-4 w-4" />
               Escolas
@@ -200,6 +200,10 @@ export const MasterDashboard = () => {
             <TabsTrigger value="users" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
               Usuários
+            </TabsTrigger>
+            <TabsTrigger value="manage-users" className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              Criar Usuários
             </TabsTrigger>
           </TabsList>
 
@@ -351,6 +355,11 @@ export const MasterDashboard = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Tab de Gerenciar Usuários */}
+          <TabsContent value="manage-users">
+            <UserManagement schools={schools} onUserCreated={fetchData} />
           </TabsContent>
         </Tabs>
       </div>

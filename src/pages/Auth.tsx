@@ -1,21 +1,46 @@
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { GraduationCap, Mail, Lock, User, ArrowRight } from 'lucide-react';
+import { GraduationCap, Download } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
 const Auth = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [loginData, setLoginData] = useState({ email: '', password: '' });
-  const [signupData, setSignupData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
-  const { signIn, signUp, user } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [showInstallButton, setShowInstallButton] = useState(false);
+  
+  const { signIn, user } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
+  // Detectar se PWA pode ser instalado
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setShowInstallButton(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    // Verificar se já está instalado
+    if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) {
+      setShowInstallButton(false);
+    }
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  // Redirecionar se já logado
   useEffect(() => {
     if (user) {
       navigate('/');
@@ -24,227 +49,137 @@ const Auth = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    
-    const { error } = await signIn(loginData.email, loginData.password);
-    
-    if (!error) {
-      navigate('/');
+    setLoading(true);
+
+    try {
+      const { error } = await signIn(email, password);
+      if (error) {
+        toast({
+          title: "Erro no login",
+          description: error.message || "Credenciais inválidas",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Erro no login",
+        description: "Ocorreu um erro inesperado",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
-    
-    setIsLoading(false);
   };
 
-  const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleInstallPWA = async () => {
+    if (!deferredPrompt) return;
+
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
     
-    if (signupData.password !== signupData.confirmPassword) {
-      return;
+    if (outcome === 'accepted') {
+      toast({
+        title: "App instalado!",
+        description: "O EduDiário foi instalado em seu dispositivo",
+      });
     }
     
-    setIsLoading(true);
-    
-    const { error } = await signUp(signupData.email, signupData.password, signupData.name);
-    
-    if (!error) {
-      // Reset form
-      setSignupData({ name: '', email: '', password: '', confirmPassword: '' });
-    }
-    
-    setIsLoading(false);
+    setDeferredPrompt(null);
+    setShowInstallButton(false);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Logo e Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl mb-4">
-            <GraduationCap className="w-8 h-8 text-white" />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-md space-y-6">
+        {/* Logo e Título */}
+        <div className="text-center space-y-4">
+          <div className="flex justify-center">
+            <div className="p-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl">
+              <GraduationCap className="h-12 w-12 text-white" />
+            </div>
           </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            EduDiário
-          </h1>
-          <p className="text-gray-600 mt-2">Sua plataforma digital escolar</p>
+          <div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              EduDiário
+            </h1>
+            <p className="text-gray-600 mt-2">Sistema de Gestão Escolar</p>
+          </div>
         </div>
 
-        <Card className="border-0 shadow-2xl bg-white/80 backdrop-blur-sm">
-          <CardHeader className="text-center pb-2">
-            <CardTitle className="text-2xl font-semibold text-gray-800">Bem-vindo</CardTitle>
-            <CardDescription className="text-gray-600">
-              Acesse sua conta ou crie uma nova
-            </CardDescription>
+        {/* Formulário de Login */}
+        <Card className="shadow-xl border-0">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl text-center">Fazer Login</CardTitle>
           </CardHeader>
-          
           <CardContent>
-            <Tabs defaultValue="login" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-6">
-                <TabsTrigger value="login" className="text-sm">Entrar</TabsTrigger>
-                <TabsTrigger value="signup" className="text-sm">Cadastrar</TabsTrigger>
-              </TabsList>
-              
-              {/* Tab de Login */}
-              <TabsContent value="login">
-                <form onSubmit={handleLogin} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="login-email" className="text-sm font-medium text-gray-700">
-                      Email
-                    </Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        id="login-email"
-                        type="email"
-                        placeholder="seu@email.com"
-                        value={loginData.email}
-                        onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
-                        className="pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                        required
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="login-password" className="text-sm font-medium text-gray-700">
-                      Senha
-                    </Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        id="login-password"
-                        type="password"
-                        placeholder="••••••••"
-                        value={loginData.password}
-                        onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
-                        className="pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                        required
-                      />
-                    </div>
-                  </div>
-                  
-                  <Button 
-                    type="submit" 
-                    className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium rounded-lg transition-all duration-200 transform hover:scale-[1.02]"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      "Entrando..."
-                    ) : (
-                      <>
-                        Entrar
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </>
-                    )}
-                  </Button>
-                </form>
-              </TabsContent>
-              
-              {/* Tab de Cadastro */}
-              <TabsContent value="signup">
-                <form onSubmit={handleSignup} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-name" className="text-sm font-medium text-gray-700">
-                      Nome Completo
-                    </Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        id="signup-name"
-                        type="text"
-                        placeholder="Seu nome completo"
-                        value={signupData.name}
-                        onChange={(e) => setSignupData({ ...signupData, name: e.target.value })}
-                        className="pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                        required
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-email" className="text-sm font-medium text-gray-700">
-                      Email
-                    </Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        id="signup-email"
-                        type="email"
-                        placeholder="seu@email.com"
-                        value={signupData.email}
-                        onChange={(e) => setSignupData({ ...signupData, email: e.target.value })}
-                        className="pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                        required
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-password" className="text-sm font-medium text-gray-700">
-                      Senha
-                    </Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        id="signup-password"
-                        type="password"
-                        placeholder="••••••••"
-                        value={signupData.password}
-                        onChange={(e) => setSignupData({ ...signupData, password: e.target.value })}
-                        className="pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                        required
-                        minLength={6}
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-confirm" className="text-sm font-medium text-gray-700">
-                      Confirmar Senha
-                    </Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        id="signup-confirm"
-                        type="password"
-                        placeholder="••••••••"
-                        value={signupData.confirmPassword}
-                        onChange={(e) => setSignupData({ ...signupData, confirmPassword: e.target.value })}
-                        className="pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                        required
-                        minLength={6}
-                      />
-                    </div>
-                    {signupData.password && signupData.confirmPassword && signupData.password !== signupData.confirmPassword && (
-                      <p className="text-sm text-red-600">As senhas não coincidem</p>
-                    )}
-                  </div>
-                  
-                  <Button 
-                    type="submit" 
-                    className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium rounded-lg transition-all duration-200 transform hover:scale-[1.02]"
-                    disabled={isLoading || (signupData.password !== signupData.confirmPassword)}
-                  >
-                    {isLoading ? (
-                      "Criando conta..."
-                    ) : (
-                      <>
-                        Criar conta
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </>
-                    )}
-                  </Button>
-                </form>
-              </TabsContent>
-            </Tabs>
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="seu@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="h-11"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Senha</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="h-11"
+                />
+              </div>
+              <Button
+                type="submit"
+                className="w-full h-11 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                disabled={loading}
+              >
+                {loading ? "Entrando..." : "Entrar"}
+              </Button>
+            </form>
           </CardContent>
         </Card>
-        
-        <p className="text-center text-sm text-gray-500 mt-6">
-          Ao continuar, você concorda com nossos{' '}
-          <a href="#" className="text-blue-600 hover:underline">Termos de Uso</a>
-          {' '}e{' '}
-          <a href="#" className="text-blue-600 hover:underline">Política de Privacidade</a>
-        </p>
+
+        {/* Botão de Instalação PWA */}
+        {showInstallButton && (
+          <Card className="shadow-lg border-green-200 bg-green-50">
+            <CardContent className="pt-6">
+              <div className="text-center space-y-3">
+                <div className="flex justify-center">
+                  <Download className="h-8 w-8 text-green-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-green-800">Instalar EduDiário</h3>
+                  <p className="text-sm text-green-700 mt-1">
+                    Adicione o app à sua tela inicial para acesso rápido
+                  </p>
+                </div>
+                <Button
+                  onClick={handleInstallPWA}
+                  variant="outline"
+                  className="w-full border-green-300 text-green-700 hover:bg-green-100"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Instalar App
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Rodapé */}
+        <div className="text-center text-sm text-gray-500">
+          <p>Acesso restrito a usuários autorizados</p>
+          <p className="mt-1">© 2024 EduDiário - Gestão Escolar</p>
+        </div>
       </div>
     </div>
   );

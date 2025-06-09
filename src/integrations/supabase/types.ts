@@ -104,7 +104,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      can_access_school: {
+        Args: { school_uuid: string }
+        Returns: boolean
+      }
+      is_master_user: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
     }
     Enums: {
       secretaria_role:
