@@ -9,21 +9,26 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Save, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-interface Student {
+interface BaseStudent {
   id: string;
   name: string;
+}
+
+interface StudentWithGrade extends BaseStudent {
   grade?: number;
   observation?: string;
 }
 
 interface GradeInputProps {
-  students: Student[];
+  students: BaseStudent[];
   subject: string;
-  onSave: (grades: Student[]) => void;
+  onSave: (grades: StudentWithGrade[]) => void;
 }
 
 export const GradeInput = ({ students, subject, onSave }: GradeInputProps) => {
-  const [grades, setGrades] = useState<Student[]>(students);
+  const [grades, setGrades] = useState<StudentWithGrade[]>(
+    students.map(student => ({ ...student }))
+  );
   const [currentAssignment, setCurrentAssignment] = useState("");
   const { toast } = useToast();
 

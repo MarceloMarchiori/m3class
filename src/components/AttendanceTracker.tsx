@@ -6,20 +6,25 @@ import { Badge } from "@/components/ui/badge";
 import { CheckCircle, XCircle, Clock, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-interface Student {
+interface BaseStudent {
   id: string;
   name: string;
+}
+
+interface StudentWithAttendance extends BaseStudent {
   status: "presente" | "ausente" | "atrasado" | null;
 }
 
 interface AttendanceTrackerProps {
-  students: Student[];
-  onSave: (attendance: Student[]) => void;
+  students: BaseStudent[];
+  onSave: (attendance: StudentWithAttendance[]) => void;
   date?: string;
 }
 
 export const AttendanceTracker = ({ students, onSave, date = new Date().toLocaleDateString() }: AttendanceTrackerProps) => {
-  const [attendance, setAttendance] = useState<Student[]>(students);
+  const [attendance, setAttendance] = useState<StudentWithAttendance[]>(
+    students.map(student => ({ ...student, status: null }))
+  );
   const { toast } = useToast();
 
   const updateAttendance = (studentId: string, status: "presente" | "ausente" | "atrasado") => {
@@ -36,7 +41,7 @@ export const AttendanceTracker = ({ students, onSave, date = new Date().toLocale
     });
   };
 
-  const getStatusBadge = (status: Student["status"]) => {
+  const getStatusBadge = (status: StudentWithAttendance["status"]) => {
     switch (status) {
       case "presente":
         return <Badge className="bg-success text-success-foreground">Presente</Badge>;
