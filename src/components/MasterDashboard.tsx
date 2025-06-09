@@ -393,47 +393,42 @@ export const MasterDashboard = () => {
         )}
 
         <Tabs defaultValue="financial" className="space-y-6 sm:space-y-8">
-          <TabsList className="w-full bg-white/60 backdrop-blur-sm border-0 shadow-lg rounded-xl p-1 sm:p-2 h-auto">
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-1 sm:gap-2 w-full">
+          <TabsList className="w-full bg-white/60 backdrop-blur-sm border-0 shadow-lg rounded-xl p-2 h-auto">
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-2 w-full">
               <TabsTrigger 
                 value="financial" 
-                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 rounded-lg p-2 sm:p-3 text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white"
+                className="flex flex-col items-center gap-2 rounded-lg p-4 text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white h-auto"
               >
-                <DollarSign className="h-4 w-4" />
-                <span className="hidden sm:inline">Financeiro</span>
-                <span className="sm:hidden">Finance</span>
+                <DollarSign className="h-6 w-6" />
+                <span>Financeiro</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="schools" 
-                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 rounded-lg p-2 sm:p-3 text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white"
+                className="flex flex-col items-center gap-2 rounded-lg p-4 text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white h-auto"
               >
-                <Building className="h-4 w-4" />
-                <span className="hidden sm:inline">Escolas</span>
-                <span className="sm:hidden">Escolas</span>
+                <Building className="h-6 w-6" />
+                <span>Escolas</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="users" 
-                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 rounded-lg p-2 sm:p-3 text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white"
+                className="flex flex-col items-center gap-2 rounded-lg p-4 text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white h-auto"
               >
-                <Users className="h-4 w-4" />
-                <span className="hidden sm:inline">Usuários</span>
-                <span className="sm:hidden">Users</span>
+                <Users className="h-6 w-6" />
+                <span>Usuários</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="access" 
-                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 rounded-lg p-2 sm:p-3 text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white"
+                className="flex flex-col items-center gap-2 rounded-lg p-4 text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white h-auto"
               >
-                <Search className="h-4 w-4" />
-                <span className="hidden sm:inline">Acesso Interno</span>
-                <span className="sm:hidden">Acesso</span>
+                <Search className="h-6 w-6" />
+                <span>Acesso Interno</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="subscriptions" 
-                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 rounded-lg p-2 sm:p-3 text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white"
+                className="flex flex-col items-center gap-2 rounded-lg p-4 text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white h-auto"
               >
-                <CreditCard className="h-4 w-4" />
-                <span className="hidden sm:inline">Assinaturas</span>
-                <span className="sm:hidden">Plans</span>
+                <CreditCard className="h-6 w-6" />
+                <span>Assinaturas</span>
               </TabsTrigger>
             </div>
           </TabsList>
@@ -446,12 +441,12 @@ export const MasterDashboard = () => {
             <Card className="shadow-lg border-0 bg-white/60 backdrop-blur-sm">
               <CardHeader>
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <CardTitle>Gerenciar Escolas</CardTitle>
+                  <CardTitle className="text-xl">Gerenciar Escolas</CardTitle>
                   <Button 
-                    className="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 w-full sm:w-auto"
+                    className="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 w-full sm:w-auto h-12"
                     onClick={() => setIsSchoolDialogOpen(true)}
                   >
-                    <Plus className="h-4 w-4" />
+                    <Plus className="h-5 w-5" />
                     Nova Escola
                   </Button>
                 </div>
@@ -461,11 +456,11 @@ export const MasterDashboard = () => {
                   {schools.map((school: any) => (
                     <div key={school.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-all duration-200 gap-4">
                       <div className="flex items-center gap-4">
-                        <div className="p-2 bg-blue-100 rounded-lg flex-shrink-0">
-                          <Building className="h-5 w-5 text-blue-600" />
+                        <div className="p-3 bg-blue-100 rounded-lg flex-shrink-0">
+                          <Building className="h-6 w-6 text-blue-600" />
                         </div>
                         <div className="min-w-0">
-                          <h3 className="font-semibold">{school.name}</h3>
+                          <h3 className="font-semibold text-lg">{school.name}</h3>
                           <p className="text-sm text-muted-foreground truncate">
                             {school.email || 'Sem email cadastrado'}
                           </p>
@@ -476,25 +471,26 @@ export const MasterDashboard = () => {
                       </div>
                       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                         <div className="flex gap-2 flex-wrap">
-                          <Badge variant={school.is_active ? 'default' : 'secondary'}>
+                          <Badge variant={school.is_active ? 'default' : 'secondary'} className="text-sm px-3 py-1">
                             {school.is_active ? 'Ativa' : 'Inativa'}
                           </Badge>
                           {subscriptions.find((s: any) => s.school_id === school.id) && (
-                            <Badge variant="outline">Com Assinatura</Badge>
+                            <Badge variant="outline" className="text-sm px-3 py-1">Com Assinatura</Badge>
                           )}
                         </div>
-                        <div className="flex gap-1">
+                        <div className="flex gap-2">
                           <Button
                             variant="outline"
-                            size="sm"
+                            size="lg"
                             onClick={() => setEditingSchool(school)}
+                            className="h-12 px-4"
                           >
-                            <Edit className="h-4 w-4" />
+                            <Edit className="h-5 w-5" />
                           </Button>
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
-                              <Button variant="outline" size="sm">
-                                <Trash2 className="h-4 w-4" />
+                              <Button variant="outline" size="lg" className="h-12 px-4">
+                                <Trash2 className="h-5 w-5" />
                               </Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
@@ -528,13 +524,13 @@ export const MasterDashboard = () => {
             <Card className="shadow-lg border-0 bg-white/60 backdrop-blur-sm">
               <CardHeader>
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <CardTitle>Administradores das Escolas</CardTitle>
+                  <CardTitle className="text-xl">Administradores das Escolas</CardTitle>
                   <Button 
-                    className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 w-full sm:w-auto"
+                    className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 w-full sm:w-auto h-12"
                     onClick={() => setIsUserDialogOpen(true)}
                   >
-                    <UserPlus className="h-4 w-4" />
-                    Novo Admin Escola
+                    <UserPlus className="h-5 w-5" />
+                    Novo Admin
                   </Button>
                 </div>
               </CardHeader>
@@ -543,11 +539,11 @@ export const MasterDashboard = () => {
                   {profiles.map((profile: any) => (
                     <div key={profile.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-all duration-200 gap-4">
                       <div className="flex items-center gap-4">
-                        <div className="p-2 bg-green-100 rounded-lg flex-shrink-0">
-                          <Users className="h-5 w-5 text-green-600" />
+                        <div className="p-3 bg-green-100 rounded-lg flex-shrink-0">
+                          <Users className="h-6 w-6 text-green-600" />
                         </div>
                         <div className="min-w-0">
-                          <h3 className="font-semibold">{profile.name}</h3>
+                          <h3 className="font-semibold text-lg">{profile.name}</h3>
                           <p className="text-sm text-muted-foreground truncate">{profile.email}</p>
                           {profile.user_schools && profile.user_schools.length > 0 && (
                             <p className="text-xs text-muted-foreground">
@@ -557,30 +553,32 @@ export const MasterDashboard = () => {
                         </div>
                       </div>
                       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                        <Badge variant={getUserTypeBadgeVariant(profile.user_type)}>
+                        <Badge variant={getUserTypeBadgeVariant(profile.user_type)} className="text-sm px-3 py-1">
                           {getUserTypeLabel(profile.user_type)}
                         </Badge>
-                        <div className="flex gap-1">
+                        <div className="flex gap-2">
                           <Button
                             variant="outline"
-                            size="sm"
+                            size="lg"
                             onClick={() => handleImpersonateUser(profile)}
                             title="Entrar como este usuário"
+                            className="h-12 px-4"
                           >
-                            <LogIn className="h-4 w-4" />
+                            <LogIn className="h-5 w-5" />
                           </Button>
                           <Button
                             variant="outline"
-                            size="sm"
+                            size="lg"
                             onClick={() => setEditingUser(profile)}
+                            className="h-12 px-4"
                           >
-                            <Edit className="h-4 w-4" />
+                            <Edit className="h-5 w-5" />
                           </Button>
                           {profile.user_type !== 'master' && (
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
-                                <Button variant="outline" size="sm">
-                                  <Trash2 className="h-4 w-4" />
+                                <Button variant="outline" size="lg" className="h-12 px-4">
+                                  <Trash2 className="h-5 w-5" />
                                 </Button>
                               </AlertDialogTrigger>
                               <AlertDialogContent>
@@ -618,18 +616,18 @@ export const MasterDashboard = () => {
           <TabsContent value="subscriptions">
             <Card className="shadow-lg border-0 bg-white/60 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle>Gerenciar Assinaturas</CardTitle>
+                <CardTitle className="text-xl">Gerenciar Assinaturas</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   {subscriptions.map((subscription: any) => (
                     <div key={subscription.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-all duration-200 gap-4">
                       <div className="flex items-center gap-4">
-                        <div className="p-2 bg-purple-100 rounded-lg flex-shrink-0">
-                          <CreditCard className="h-5 w-5 text-purple-600" />
+                        <div className="p-3 bg-purple-100 rounded-lg flex-shrink-0">
+                          <CreditCard className="h-6 w-6 text-purple-600" />
                         </div>
                         <div className="min-w-0">
-                          <h3 className="font-semibold">{subscription.schools?.name}</h3>
+                          <h3 className="font-semibold text-lg">{subscription.schools?.name}</h3>
                           <p className="text-sm text-muted-foreground">
                             Plano: {subscription.plan_name} - R$ {subscription.monthly_value}
                           </p>
@@ -639,21 +637,22 @@ export const MasterDashboard = () => {
                         </div>
                       </div>
                       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                        <Badge variant={subscription.status === 'active' ? 'default' : 'secondary'}>
+                        <Badge variant={subscription.status === 'active' ? 'default' : 'secondary'} className="text-sm px-3 py-1">
                           {subscription.status === 'active' ? 'Ativa' : subscription.status}
                         </Badge>
-                        <div className="flex gap-1">
+                        <div className="flex gap-2">
                           <Button
                             variant="outline"
-                            size="sm"
+                            size="lg"
                             onClick={() => setEditingSubscription(subscription)}
+                            className="h-12 px-4"
                           >
-                            <Edit className="h-4 w-4" />
+                            <Edit className="h-5 w-5" />
                           </Button>
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
-                              <Button variant="outline" size="sm">
-                                <Trash2 className="h-4 w-4" />
+                              <Button variant="outline" size="lg" className="h-12 px-4">
+                                <Trash2 className="h-5 w-5" />
                               </Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>

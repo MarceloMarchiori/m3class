@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Users, UserCheck, UserX, Clock } from 'lucide-react';
+import { Calendar, Users, UserCheck, UserX, Clock, ChevronLeft, ChevronRight, Save } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
@@ -28,6 +28,7 @@ export const AttendanceManager = () => {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [currentStudentIndex, setCurrentStudentIndex] = useState(0);
   
   const { profile } = useAuth();
   const { toast } = useToast();
@@ -87,7 +88,6 @@ export const AttendanceManager = () => {
   const loadAttendance = async () => {
     try {
       // Por enquanto, sempre inicializar com presença para todos
-      // Quando os tipos estiverem atualizados, poderemos carregar do banco
       const initialAttendance: AttendanceRecord[] = students.map(student => ({
         student_id: student.id,
         date: selectedDate,
@@ -95,6 +95,7 @@ export const AttendanceManager = () => {
         teacher_id: profile?.id || ''
       }));
       setAttendance(initialAttendance);
+      setCurrentStudentIndex(0);
     } catch (error: any) {
       console.error('Error loading attendance:', error);
     }
@@ -113,8 +114,6 @@ export const AttendanceManager = () => {
   const saveAttendance = async () => {
     setSaving(true);
     try {
-      // Por enquanto, vamos apenas simular o salvamento
-      // Quando os tipos estiverem atualizados, salvaremos no banco real
       console.log('Saving attendance records:', attendance);
       
       // Simular envio de notificação para responsáveis em caso de falta
@@ -122,7 +121,6 @@ export const AttendanceManager = () => {
       
       if (absentStudents.length > 0) {
         console.log('Students with absence:', absentStudents);
-        // Aqui seria enviada a notificação real
       }
 
       toast({
@@ -138,6 +136,18 @@ export const AttendanceManager = () => {
       });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const nextStudent = () => {
+    if (currentStudentIndex < students.length - 1) {
+      setCurrentStudentIndex(currentStudentIndex + 1);
+    }
+  };
+
+  const prevStudent = () => {
+    if (currentStudentIndex > 0) {
+      setCurrentStudentIndex(currentStudentIndex - 1);
     }
   };
 
@@ -157,13 +167,13 @@ export const AttendanceManager = () => {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'presente':
-        return <UserCheck className="h-4 w-4" />;
+        return <UserCheck className="h-6 w-6" />;
       case 'ausente':
-        return <UserX className="h-4 w-4" />;
+        return <UserX className="h-6 w-6" />;
       case 'atrasado':
-        return <Clock className="h-4 w-4" />;
+        return <Clock className="h-6 w-6" />;
       default:
-        return <Users className="h-4 w-4" />;
+        return <Users className="h-6 w-6" />;
     }
   };
 
@@ -180,97 +190,159 @@ export const AttendanceManager = () => {
     );
   }
 
+  if (loading) {
+    return (
+      <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+        <CardContent className="pt-6">
+          <div className="flex items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const currentStudent = students[currentStudentIndex];
+  const currentAttendance = attendance.find(a => a.student_id === currentStudent?.id);
+  const status = currentAttendance?.status || 'presente';
+
   return (
-    <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+    <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm max-w-md mx-auto">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Calendar className="h-5 w-5" />
+        <CardTitle className="flex items-center gap-2 text-lg">
+          <Calendar className="h-6 w-6" />
           Registro de Frequência
         </CardTitle>
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+        <div className="flex flex-col gap-4">
           <div>
             <label className="text-sm font-medium">Data:</label>
             <input
               type="date"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              className="ml-2 px-3 py-1 border rounded-md"
+              className="ml-2 px-3 py-2 border rounded-md w-full"
             />
           </div>
-          <Button
-            onClick={saveAttendance}
-            disabled={saving || loading}
-            className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
-          >
-            {saving ? "Salvando..." : "Salvar Frequência"}
-          </Button>
         </div>
       </CardHeader>
 
       <CardContent>
-        {loading ? (
-          <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+        {students.length === 0 ? (
+          <div className="text-center py-8 text-muted-foreground">
+            <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            <p>Nenhum aluno encontrado</p>
           </div>
         ) : (
-          <div className="space-y-3">
-            <div className="text-sm text-muted-foreground mb-4">
-              <strong>Instrução:</strong> Todos os alunos já estão marcados como presentes. 
-              Clique nos botões para marcar faltas ou atrasos.
+          <div className="space-y-6">
+            {/* Contador de progresso */}
+            <div className="text-center">
+              <div className="text-sm text-muted-foreground mb-2">
+                Aluno {currentStudentIndex + 1} de {students.length}
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div 
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${((currentStudentIndex + 1) / students.length) * 100}%` }}
+                ></div>
+              </div>
             </div>
-            
-            {students.map((student) => {
-              const studentAttendance = attendance.find(a => a.student_id === student.id);
-              const status = studentAttendance?.status || 'presente';
+
+            {/* Card do aluno atual */}
+            <div className="text-center space-y-4 py-8 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg">
+              <div className="p-4 bg-blue-100 rounded-full w-20 h-20 mx-auto flex items-center justify-center">
+                <Users className="h-10 w-10 text-blue-600" />
+              </div>
               
-              return (
-                <div
-                  key={student.id}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg gap-4"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="p-2 bg-blue-100 rounded-lg">
-                      <Users className="h-5 w-5 text-blue-600" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold">{student.name}</h3>
-                      <p className="text-sm text-muted-foreground">{student.email}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <Badge className={getStatusColor(status)}>
-                      {getStatusIcon(status)}
-                      <span className="ml-1 capitalize">{status}</span>
-                    </Badge>
-                    
-                    <div className="flex gap-1">
-                      <Button
-                        size="sm"
-                        variant={status === 'presente' ? 'default' : 'outline'}
-                        onClick={() => updateAttendanceStatus(student.id, 'presente')}
-                      >
-                        <UserCheck className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant={status === 'ausente' ? 'destructive' : 'outline'}
-                        onClick={() => updateAttendanceStatus(student.id, 'ausente')}
-                      >
-                        <UserX className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant={status === 'atrasado' ? 'secondary' : 'outline'}
-                        onClick={() => updateAttendanceStatus(student.id, 'atrasado')}
-                      >
-                        <Clock className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+              <div>
+                <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                  {currentStudent?.name}
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  {currentStudent?.email}
+                </p>
+              </div>
+
+              {/* Status atual */}
+              <div className="flex justify-center">
+                <Badge className={`${getStatusColor(status)} text-lg px-4 py-2`}>
+                  {getStatusIcon(status)}
+                  <span className="ml-2 capitalize font-semibold">{status}</span>
+                </Badge>
+              </div>
+            </div>
+
+            {/* Botões de status - maiores e lado a lado */}
+            <div className="grid grid-cols-3 gap-3">
+              <Button
+                size="lg"
+                variant={status === 'presente' ? 'default' : 'outline'}
+                onClick={() => updateAttendanceStatus(currentStudent.id, 'presente')}
+                className="h-20 flex flex-col gap-2 text-sm font-semibold"
+              >
+                <UserCheck className="h-8 w-8" />
+                Presente
+              </Button>
+              <Button
+                size="lg"
+                variant={status === 'atrasado' ? 'secondary' : 'outline'}
+                onClick={() => updateAttendanceStatus(currentStudent.id, 'atrasado')}
+                className="h-20 flex flex-col gap-2 text-sm font-semibold"
+              >
+                <Clock className="h-8 w-8" />
+                Atrasado
+              </Button>
+              <Button
+                size="lg"
+                variant={status === 'ausente' ? 'destructive' : 'outline'}
+                onClick={() => updateAttendanceStatus(currentStudent.id, 'ausente')}
+                className="h-20 flex flex-col gap-2 text-sm font-semibold"
+              >
+                <UserX className="h-8 w-8" />
+                Ausente
+              </Button>
+            </div>
+
+            {/* Navegação entre alunos */}
+            <div className="flex justify-between items-center pt-4">
+              <Button
+                variant="outline"
+                onClick={prevStudent}
+                disabled={currentStudentIndex === 0}
+                className="flex items-center gap-2"
+              >
+                <ChevronLeft className="h-5 w-5" />
+                Anterior
+              </Button>
+              
+              <Button
+                variant="outline"
+                onClick={nextStudent}
+                disabled={currentStudentIndex === students.length - 1}
+                className="flex items-center gap-2"
+              >
+                Próximo
+                <ChevronRight className="h-5 w-5" />
+              </Button>
+            </div>
+
+            {/* Botão salvar */}
+            <div className="pt-4 border-t">
+              <Button
+                onClick={saveAttendance}
+                disabled={saving}
+                className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 h-12 text-lg font-semibold"
+              >
+                <Save className="h-5 w-5 mr-2" />
+                {saving ? "Salvando..." : "Salvar Frequência"}
+              </Button>
+            </div>
+
+            {/* Resumo da frequência */}
+            <div className="text-xs text-muted-foreground text-center pt-2">
+              Presentes: {attendance.filter(a => a.status === 'presente').length} | 
+              Ausentes: {attendance.filter(a => a.status === 'ausente').length} | 
+              Atrasados: {attendance.filter(a => a.status === 'atrasado').length}
+            </div>
           </div>
         )}
       </CardContent>

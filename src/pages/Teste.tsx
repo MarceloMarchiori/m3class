@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -66,36 +67,95 @@ const Teste = () => {
     navigate('/master');
   };
 
+  // Mock user data for demonstration
+  const mockUsers = {
+    teacher: {
+      id: '1',
+      name: 'Prof. Maria Silva',
+      email: 'maria.silva@escola.com',
+      user_type: 'professor' as const,
+      avatar_url: null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      school_id: '1',
+      secretaria_role: null
+    },
+    student: {
+      id: '2',
+      name: 'João Santos',
+      email: 'joao.santos@email.com',
+      user_type: 'aluno' as const,
+      avatar_url: null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      school_id: '1',
+      secretaria_role: null
+    },
+    secretary: {
+      id: '3',
+      name: 'Ana Costa',
+      email: 'ana.costa@escola.com',
+      user_type: 'secretaria' as const,
+      avatar_url: null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      school_id: '1',
+      secretaria_role: 'admin' as const
+    },
+    director: {
+      id: '4',
+      name: 'Carlos Diretor',
+      email: 'carlos@escola.com',
+      user_type: 'school_admin' as const,
+      avatar_url: null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      school_id: '1',
+      secretaria_role: null
+    },
+    parent: {
+      id: '5',
+      name: 'Fernanda Responsável',
+      email: 'fernanda@email.com',
+      user_type: 'responsavel' as const,
+      avatar_url: null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      school_id: '1',
+      secretaria_role: null
+    }
+  };
+
   const dashboardTabs = [
     {
       id: 'teacher',
       label: 'Professor',
-      icon: <BookOpen className="h-4 w-4" />,
-      component: <TeacherDashboard />
+      icon: <BookOpen className="h-5 w-5" />,
+      component: <TeacherDashboard demoUser={mockUsers.teacher} />
     },
     {
       id: 'student',
       label: 'Aluno',
-      icon: <GraduationCap className="h-4 w-4" />,
-      component: <StudentDashboard />
+      icon: <GraduationCap className="h-5 w-5" />,
+      component: <StudentDashboard demoUser={mockUsers.student} />
     },
     {
       id: 'secretary',
       label: 'Secretaria',
-      icon: <Shield className="h-4 w-4" />,
-      component: <SecretaryDashboard />
+      icon: <Shield className="h-5 w-5" />,
+      component: <SecretaryDashboard demoUser={mockUsers.secretary} />
     },
     {
       id: 'director',
       label: 'Diretor',
-      icon: <Users className="h-4 w-4" />,
-      component: <DirectorDashboard />
+      icon: <Users className="h-5 w-5" />,
+      component: <DirectorDashboard demoUser={mockUsers.director} />
     },
     {
       id: 'parent',
       label: 'Responsável',
-      icon: <UserCheck className="h-4 w-4" />,
-      component: <ParentDashboard />
+      icon: <UserCheck className="h-5 w-5" />,
+      component: <ParentDashboard demoUser={mockUsers.parent} />
     }
   ];
 
@@ -107,7 +167,7 @@ const Teste = () => {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <Button variant="outline" size="sm" onClick={goBack} className="flex-shrink-0">
-                <ArrowLeft className="h-4 w-4 mr-2" />
+                <ArrowLeft className="h-5 w-5 mr-2" />
                 Início
               </Button>
               <div>
@@ -123,12 +183,12 @@ const Teste = () => {
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
               {profile?.user_type === 'master' && (
                 <Button variant="outline" onClick={goToMaster} className="w-full sm:w-auto">
-                  <Home className="h-4 w-4 mr-2" />
+                  <Home className="h-5 w-5 mr-2" />
                   Painel Master
                 </Button>
               )}
               <Button variant="outline" onClick={handleSignOut} className="w-full sm:w-auto">
-                <LogOut className="h-4 w-4 mr-2" />
+                <LogOut className="h-5 w-5 mr-2" />
                 Sair
               </Button>
             </div>
@@ -142,20 +202,19 @@ const Teste = () => {
 
         <Card className="shadow-lg border-0 bg-white/60 backdrop-blur-sm">
           <CardHeader>
-            <CardTitle>Demonstração dos Dashboards</CardTitle>
+            <CardTitle className="text-xl sm:text-2xl">Demonstração dos Dashboards</CardTitle>
           </CardHeader>
           <CardContent>
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 bg-muted/50">
+              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 bg-muted/50 h-auto p-2">
                 {dashboardTabs.map((tab) => (
                   <TabsTrigger 
                     key={tab.id} 
                     value={tab.id}
-                    className="flex items-center gap-2 text-xs sm:text-sm"
+                    className="flex flex-col sm:flex-row items-center gap-2 text-xs sm:text-sm p-3 h-auto"
                   >
                     {tab.icon}
-                    <span className="hidden sm:inline">{tab.label}</span>
-                    <span className="sm:hidden">{tab.label.slice(0, 4)}</span>
+                    <span className="text-center">{tab.label}</span>
                   </TabsTrigger>
                 ))}
               </TabsList>
