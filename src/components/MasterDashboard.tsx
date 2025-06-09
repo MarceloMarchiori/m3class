@@ -17,10 +17,12 @@ import {
   UserPlus,
   Edit,
   Trash2,
-  CreditCard
+  CreditCard,
+  LogIn
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 import { UserManagement } from './UserManagement';
 import { FinancialDashboard } from './FinancialDashboard';
 import { MessagingSystem } from './MessagingSystem';
@@ -42,6 +44,7 @@ export const MasterDashboard = () => {
   const [editingUser, setEditingUser] = useState(null);
   const [editingSubscription, setEditingSubscription] = useState(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchData();
@@ -182,7 +185,7 @@ export const MasterDashboard = () => {
   };
 
   const getUserTypeLabel = (userType: string) => {
-    const labels = {
+    const labels: Record<string, string> = {
       master: 'Master',
       school_admin: 'Admin Escola',
       professor: 'Professor',
@@ -190,7 +193,7 @@ export const MasterDashboard = () => {
       responsavel: 'Responsável',
       secretaria: 'Secretaria'
     };
-    return labels[userType as keyof labels] || userType;
+    return labels[userType] || userType;
   };
 
   const getUserTypeBadgeVariant = (userType: string): "default" | "destructive" | "outline" | "secondary" => {
@@ -203,6 +206,11 @@ export const MasterDashboard = () => {
       secretaria: 'outline'
     };
     return variants[userType] || 'outline';
+  };
+
+  const handleImpersonateUser = (user: any) => {
+    // Navegar para o dashboard demo com o ID do usuário
+    navigate(`/teste?impersonate=${user.id}&userType=${user.user_type}&userName=${encodeURIComponent(user.name)}`);
   };
 
   const totalRevenue = payments
@@ -566,6 +574,14 @@ export const MasterDashboard = () => {
                         <Badge variant={getUserTypeBadgeVariant(profile.user_type)}>
                           {getUserTypeLabel(profile.user_type)}
                         </Badge>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleImpersonateUser(profile)}
+                          title="Entrar como este usuário"
+                        >
+                          <LogIn className="h-4 w-4" />
+                        </Button>
                         <Button
                           variant="outline"
                           size="sm"

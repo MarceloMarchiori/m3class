@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ImpersonationProvider } from "@/contexts/ImpersonationContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
 import Auth from "./pages/Auth";
@@ -30,22 +31,24 @@ function App() {
         <Sonner />
         <BrowserRouter>
           <AuthProvider>
-            <Routes>
-              <Route path="/" element={<Auth />} />
-              <Route path="/dashboard" element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              } />
-              <Route path="/master" element={
-                <ProtectedRoute>
-                  <Master />
-                </ProtectedRoute>
-              } />
-              {/* Página de teste agora é pública */}
-              <Route path="/teste" element={<Teste />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <ImpersonationProvider>
+              <Routes>
+                <Route path="/" element={<Auth />} />
+                <Route path="/dashboard" element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/master" element={
+                  <ProtectedRoute>
+                    <Master />
+                  </ProtectedRoute>
+                } />
+                {/* Página de teste agora é o dashboard demo da escola */}
+                <Route path="/teste" element={<Teste />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </ImpersonationProvider>
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
