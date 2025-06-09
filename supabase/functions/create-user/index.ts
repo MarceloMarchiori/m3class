@@ -59,6 +59,8 @@ serve(async (req) => {
 
     const { email, password, name, user_type, school_ids, isSchoolAdmin = false } = await req.json();
 
+    console.log('Received data:', { email, name, user_type, school_ids, isSchoolAdmin });
+
     if (!email || !password || !name || !user_type) {
       return new Response(JSON.stringify({ error: 'Missing required fields: email, password, name, user_type' }), {
         status: 400,
@@ -85,6 +87,8 @@ serve(async (req) => {
       });
     }
 
+    console.log('Auth user created:', authUser.user.id);
+
     // Criar perfil do usuário
     const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
@@ -101,11 +105,13 @@ serve(async (req) => {
       console.error('Error creating profile:', profileError);
       // Se falhar, deletar o usuário de auth também
       await supabaseAdmin.auth.admin.deleteUser(authUser.user.id);
-      return new Response(JSON.stringify({ error: profileError.message }), {
+      return new Response(JSON.stringify({ error: `Profile creation failed: ${profileError.message}` }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+
+    console.log('Profile created:', profile.id);
 
     // Associar usuário às escolas selecionadas
     if (school_ids && school_ids.length > 0) {
@@ -120,6 +126,9 @@ serve(async (req) => {
 
       if (userSchoolsError) {
         console.error('Error associating user to schools:', userSchoolsError);
+        // Não vamos falhar completamente por causa disso, apenas logar o erro
+      } else {
+        console.log('User associated to schools:', school_ids);
       }
 
       // Se for admin da escola, atualizar o campo admin_user_id da primeira escola
@@ -131,6 +140,9 @@ serve(async (req) => {
 
         if (schoolUpdateError) {
           console.error('Error setting school admin:', schoolUpdateError);
+          // Não vamos falhar completamente por causa disso, apenas logar o erro
+        } else {
+          console.log('School admin set for school:', school_ids[0]);
         }
       }
     }
@@ -145,7 +157,7 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Error in create-user function:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: `Server error: ${error.message}` }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

@@ -10,6 +10,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
 import Auth from "./pages/Auth";
 import Master from "./pages/Master";
+import Teste from "./pages/Teste";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -39,6 +40,11 @@ function App() {
               <Route path="/master" element={
                 <ProtectedRoute>
                   <Master />
+                </ProtectedRoute>
+              } />
+              <Route path="/teste" element={
+                <ProtectedRoute>
+                  <Teste />
                 </ProtectedRoute>
               } />
               <Route path="*" element={<NotFound />} />

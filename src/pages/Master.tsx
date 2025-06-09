@@ -3,7 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, LogOut } from 'lucide-react';
+import { ArrowLeft, LogOut, TestTube } from 'lucide-react';
 import { MasterDashboard } from '@/components/MasterDashboard';
 
 const Master = () => {
@@ -17,6 +17,10 @@ const Master = () => {
 
   const goBack = () => {
     navigate('/');
+  };
+
+  const goToTest = () => {
+    navigate('/teste');
   };
 
   // Verificar se o usuário é realmente master
@@ -51,10 +55,16 @@ const Master = () => {
                 <p className="text-sm text-muted-foreground">Dashboard Comercial - {profile.name}</p>
               </div>
             </div>
-            <Button variant="outline" onClick={handleSignOut}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Sair
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" onClick={goToTest}>
+                <TestTube className="h-4 w-4 mr-2" />
+                Página Teste
+              </Button>
+              <Button variant="outline" onClick={handleSignOut}>
+                <LogOut className="h-4 w-4 mr-2" />
+                Sair
+              </Button>
+            </div>
           </div>
         </div>
       </div>
