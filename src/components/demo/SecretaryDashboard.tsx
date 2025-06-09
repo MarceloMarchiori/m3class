@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -6,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { FileText, Users, Calendar, Clock, Building, Phone, Mail } from 'lucide-react';
+import { FileText, Users, Calendar, Clock, Building, Phone, Mail, UserPlus, GraduationCap, School } from 'lucide-react';
 
 interface SecretaryDashboardProps {
   demoUser: {
@@ -69,37 +70,38 @@ export const SecretaryDashboard: React.FC<SecretaryDashboardProps> = ({ demoUser
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
+      {/* Header */}
       <Card>
         <CardContent className="pt-6">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-orange-100 rounded-full">
-              <Building className="h-8 w-8 text-orange-600" />
+              <Building className="h-6 w-6 sm:h-8 sm:w-8 text-orange-600" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold">Bom dia, {demoUser.name}</h2>
-              <p className="text-muted-foreground">Secretária Escolar</p>
-              <p className="text-sm text-orange-600">Você tem {stats.todayAppointments} agendamentos hoje</p>
+              <h2 className="text-xl sm:text-2xl font-bold">Bom dia, {demoUser.name}</h2>
+              <p className="text-sm sm:text-base text-muted-foreground">Secretária Escolar</p>
+              <p className="text-xs sm:text-sm text-orange-600">Você tem {stats.todayAppointments} agendamentos hoje</p>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Ações Rápidas - Movido para o topo */}
+      {/* Quick Actions - Responsive */}
       <Card>
         <CardHeader>
-          <CardTitle>Ações Rápidas</CardTitle>
+          <CardTitle className="text-sm sm:text-base">Ações Rápidas</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <Dialog>
               <DialogTrigger asChild>
-                <Button className="h-20 flex flex-col gap-2">
-                  <Users className="h-6 w-6" />
-                  <span className="text-sm">Nova Matrícula</span>
+                <Button className="h-16 sm:h-20 flex flex-col gap-1 sm:gap-2 text-xs sm:text-sm">
+                  <Users className="h-4 w-4 sm:h-6 sm:w-6" />
+                  <span>Nova Matrícula</span>
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="w-[95vw] max-w-md">
                 <DialogHeader>
                   <DialogTitle>Nova Matrícula</DialogTitle>
                 </DialogHeader>
@@ -146,12 +148,12 @@ export const SecretaryDashboard: React.FC<SecretaryDashboardProps> = ({ demoUser
 
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant="outline" className="h-20 flex flex-col gap-2">
-                  <FileText className="h-6 w-6" />
-                  <span className="text-sm">Declarações</span>
+                <Button variant="outline" className="h-16 sm:h-20 flex flex-col gap-1 sm:gap-2 text-xs sm:text-sm">
+                  <FileText className="h-4 w-4 sm:h-6 sm:w-6" />
+                  <span>Declarações</span>
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="w-[95vw] max-w-md">
                 <DialogHeader>
                   <DialogTitle>Emitir Declaração</DialogTitle>
                 </DialogHeader>
@@ -188,12 +190,12 @@ export const SecretaryDashboard: React.FC<SecretaryDashboardProps> = ({ demoUser
 
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant="outline" className="h-20 flex flex-col gap-2">
-                  <Calendar className="h-6 w-6" />
-                  <span className="text-sm">Agendamentos</span>
+                <Button variant="outline" className="h-16 sm:h-20 flex flex-col gap-1 sm:gap-2 text-xs sm:text-sm">
+                  <Calendar className="h-4 w-4 sm:h-6 sm:w-6" />
+                  <span>Agendamentos</span>
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="w-[95vw] max-w-md">
                 <DialogHeader>
                   <DialogTitle>Novo Agendamento</DialogTitle>
                 </DialogHeader>
@@ -232,12 +234,12 @@ export const SecretaryDashboard: React.FC<SecretaryDashboardProps> = ({ demoUser
 
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant="outline" className="h-20 flex flex-col gap-2">
-                  <Mail className="h-6 w-6" />
-                  <span className="text-sm">Comunicados</span>
+                <Button variant="outline" className="h-16 sm:h-20 flex flex-col gap-1 sm:gap-2 text-xs sm:text-sm">
+                  <Mail className="h-4 w-4 sm:h-6 sm:w-6" />
+                  <span>Comunicados</span>
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="w-[95vw] max-w-md">
                 <DialogHeader>
                   <DialogTitle>Enviar Comunicado</DialogTitle>
                 </DialogHeader>
@@ -277,70 +279,108 @@ export const SecretaryDashboard: React.FC<SecretaryDashboardProps> = ({ demoUser
         </CardContent>
       </Card>
 
-      {/* Resto do conteúdo permanece igual */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Management Actions */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+            <School className="h-4 w-4 sm:h-5 sm:w-5" />
+            Gestão Escolar Completa
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+            <Button variant="outline" className="h-16 sm:h-20 flex flex-col gap-1 sm:gap-2 text-xs sm:text-sm justify-center">
+              <UserPlus className="h-4 w-4 sm:h-6 sm:w-6" />
+              <div className="text-center">
+                <div className="font-medium">Cadastrar Usuários</div>
+                <div className="text-xs opacity-80">Professores, alunos, funcionários</div>
+              </div>
+            </Button>
+            
+            <Button variant="outline" className="h-16 sm:h-20 flex flex-col gap-1 sm:gap-2 text-xs sm:text-sm justify-center">
+              <GraduationCap className="h-4 w-4 sm:h-6 sm:w-6" />
+              <div className="text-center">
+                <div className="font-medium">Criar Turmas</div>
+                <div className="text-xs opacity-80">Novas turmas e horários</div>
+              </div>
+            </Button>
+            
+            <Button variant="outline" className="h-16 sm:h-20 flex flex-col gap-1 sm:gap-2 text-xs sm:text-sm justify-center">
+              <FileText className="h-4 w-4 sm:h-6 sm:w-6" />
+              <div className="text-center">
+                <div className="font-medium">Gerenciar Matérias</div>
+                <div className="text-xs opacity-80">Disciplinas e conteúdos</div>
+              </div>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Stats - Responsive Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Matrículas Pendentes</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-xs sm:text-sm font-medium">Matrículas Pendentes</CardTitle>
+            <Users className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{stats.pendingEnrollments}</div>
+            <div className="text-lg sm:text-2xl font-bold text-orange-600">{stats.pendingEnrollments}</div>
             <p className="text-xs text-muted-foreground">Para processar</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Documentos</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-xs sm:text-sm font-medium">Documentos</CardTitle>
+            <FileText className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{stats.documentsToProcess}</div>
+            <div className="text-lg sm:text-2xl font-bold text-blue-600">{stats.documentsToProcess}</div>
             <p className="text-xs text-muted-foreground">Aguardando processamento</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Agendamentos</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-xs sm:text-sm font-medium">Agendamentos</CardTitle>
+            <Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.todayAppointments}</div>
+            <div className="text-lg sm:text-2xl font-bold text-green-600">{stats.todayAppointments}</div>
             <p className="text-xs text-muted-foreground">Para hoje</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Ligações</CardTitle>
-            <Phone className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-xs sm:text-sm font-medium">Ligações</CardTitle>
+            <Phone className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-purple-600">{stats.phoneCallsToday}</div>
+            <div className="text-lg sm:text-2xl font-bold text-purple-600">{stats.phoneCallsToday}</div>
             <p className="text-xs text-muted-foreground">Hoje</p>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Main Dashboard - Responsive Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+              <Calendar className="h-4 w-4 sm:h-5 sm:w-5" />
               Agendamentos de Hoje
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               {todayAppointments.map((appointment, index) => (
-                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div>
-                    <p className="font-medium">{appointment.time} - {appointment.person}</p>
-                    <p className="text-sm text-muted-foreground">{appointment.reason}</p>
+                <div key={index} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 border rounded-lg gap-2">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">{appointment.time} - {appointment.person}</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">{appointment.reason}</p>
                   </div>
-                  <Badge variant="outline">
+                  <Badge variant="outline" className="w-fit">
                     {appointment.type === 'enrollment' && 'Matrícula'}
                     {appointment.type === 'document' && 'Documento'}
                     {appointment.type === 'meeting' && 'Reunião'}
@@ -354,15 +394,15 @@ export const SecretaryDashboard: React.FC<SecretaryDashboardProps> = ({ demoUser
 
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+              <FileText className="h-4 w-4 sm:h-5 sm:w-5" />
               Tarefas Pendentes
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {pendingTasks.map((item, index) => (
-                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                <div key={index} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 border rounded-lg gap-3">
                   <div className="flex-1">
                     <p className="text-sm font-medium">{item.task}</p>
                     <p className="text-xs text-muted-foreground">Prazo: {item.deadline}</p>
@@ -377,7 +417,7 @@ export const SecretaryDashboard: React.FC<SecretaryDashboardProps> = ({ demoUser
                     >
                       {item.priority}
                     </Badge>
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" className="text-xs">
                       Ver
                     </Button>
                   </div>
@@ -387,32 +427,6 @@ export const SecretaryDashboard: React.FC<SecretaryDashboardProps> = ({ demoUser
           </CardContent>
         </Card>
       </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Ações Rápidas</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Button className="h-20 flex flex-col gap-2">
-              <Users className="h-6 w-6" />
-              <span className="text-sm">Nova Matrícula</span>
-            </Button>
-            <Button variant="outline" className="h-20 flex flex-col gap-2">
-              <FileText className="h-6 w-6" />
-              <span className="text-sm">Declarações</span>
-            </Button>
-            <Button variant="outline" className="h-20 flex flex-col gap-2">
-              <Calendar className="h-6 w-6" />
-              <span className="text-sm">Agendamentos</span>
-            </Button>
-            <Button variant="outline" className="h-20 flex flex-col gap-2">
-              <Mail className="h-6 w-6" />
-              <span className="text-sm">Comunicados</span>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 };

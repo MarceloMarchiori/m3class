@@ -34,8 +34,8 @@ const Index = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/30 to-background">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">
+          <div className="animate-spin rounded-full h-16 w-16 sm:h-32 sm:w-32 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-sm sm:text-base text-muted-foreground">
             {profile?.user_type === 'master' ? 'Redirecionando para o painel Master...' : 'Carregando...'}
           </p>
         </div>
@@ -48,8 +48,8 @@ const Index = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/30 to-background">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Redirecionando para o painel Master...</p>
+          <div className="animate-spin rounded-full h-16 w-16 sm:h-32 sm:w-32 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-sm sm:text-base text-muted-foreground">Redirecionando para o painel Master...</p>
         </div>
       </div>
     );
@@ -72,7 +72,6 @@ const Index = () => {
     navigate(path);
   };
 
-  // Resto do código da página Index permanece igual
   const getDashboardCards = () => {
     switch (profile?.user_type) {
       case 'school_admin':
@@ -203,18 +202,18 @@ const Index = () => {
         userName={profile?.name || 'Usuário'} 
       />
       
-      <main className="container mx-auto px-6 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">
+      <main className="container mx-auto px-4 sm:px-6 py-4 sm:py-8">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
             Bem-vindo ao EduDiário, {profile?.name}!
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground">
             Gerencie sua escola de forma eficiente e organizada.
           </p>
         </div>
 
-        {/* Dashboard Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {/* Dashboard Cards - Responsive Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
           {cards.map((card, index) => (
             <div key={index} onClick={() => handleCardClick(card.path)} className="cursor-pointer">
               <DashboardCard {...card} />
@@ -222,8 +221,8 @@ const Index = () => {
           ))}
         </div>
 
-        {/* Content específico por tipo de usuário */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Content específico por tipo de usuário - Responsive Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           <div className="lg:col-span-2">
             {profile?.user_type === 'responsavel' && <ChildrenOverview />}
             {profile?.user_type === 'professor' && (
