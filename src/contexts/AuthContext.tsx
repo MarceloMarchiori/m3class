@@ -30,7 +30,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [masterRedirecting, setMasterRedirecting] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -57,12 +56,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 console.log('Profile loaded:', profileData.user_type);
                 setProfile(profileData);
                 
-                // Auto-redirect master users to /master
-                if (profileData.user_type === 'master' && window.location.pathname !== '/master') {
-                  console.log('Redirecting master user to /master');
-                  setMasterRedirecting(true);
-                  navigate('/master');
-                  setTimeout(() => setMasterRedirecting(false), 1000);
+                // Redirecionar após login baseado no tipo de usuário
+                if (event === 'SIGNED_IN') {
+                  if (profileData.user_type === 'master') {
+                    navigate('/master');
+                  } else {
+                    navigate('/dashboard');
+                  }
                 }
               }
             } catch (error) {
@@ -74,6 +74,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } else {
           setProfile(null);
           setLoading(false);
+          // Só redirecionar para login se não estiver já na página de login
+          if (window.location.pathname !== '/') {
+            navigate('/');
+          }
         }
       }
     );
@@ -105,7 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signUp = async (email: string, password: string, userData?: any) => {
     try {
-      const redirectUrl = `${window.location.origin}/`;
+      const redirectUrl = `${window.location.origin}/dashboard`;
       
       const { error } = await supabase.auth.signUp({
         email,
@@ -127,7 +131,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(null);
       setSession(null);
       setProfile(null);
-      navigate('/auth');
+      navigate('/');
     }
   };
 
@@ -135,7 +139,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     user,
     session,
     profile,
-    loading: loading || masterRedirecting,
+    loading,
     signIn,
     signUp,
     signOut,

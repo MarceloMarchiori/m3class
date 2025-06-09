@@ -292,6 +292,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      is_current_user_master: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       is_master_user: {
         Args: Record<PropertyKey, never>
         Returns: boolean

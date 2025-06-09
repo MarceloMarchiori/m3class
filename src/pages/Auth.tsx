@@ -16,7 +16,7 @@ const Auth = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showInstallButton, setShowInstallButton] = useState(false);
   
-  const { signIn, user } = useAuth();
+  const { signIn, user, profile } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -42,10 +42,14 @@ const Auth = () => {
 
   // Redirecionar se já logado
   useEffect(() => {
-    if (user) {
-      navigate('/');
+    if (user && profile) {
+      if (profile.user_type === 'master') {
+        navigate('/master');
+      } else {
+        navigate('/dashboard');
+      }
     }
-  }, [user, navigate]);
+  }, [user, profile, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
