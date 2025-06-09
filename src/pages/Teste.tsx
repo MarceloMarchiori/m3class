@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -67,62 +66,32 @@ const Teste = () => {
     navigate('/master');
   };
 
-  // Mock user data for demonstration
+  // Mock user data for demonstration - Updated with correct prop structure
   const mockUsers = {
     teacher: {
-      id: '1',
       name: 'Prof. Maria Silva',
       email: 'maria.silva@escola.com',
-      user_type: 'professor' as const,
-      avatar_url: null,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      school_id: '1',
-      secretaria_role: null
+      user_type: 'professor'
     },
     student: {
-      id: '2',
       name: 'João Santos',
       email: 'joao.santos@email.com',
-      user_type: 'aluno' as const,
-      avatar_url: null,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      school_id: '1',
-      secretaria_role: null
+      user_type: 'aluno'
     },
     secretary: {
-      id: '3',
       name: 'Ana Costa',
       email: 'ana.costa@escola.com',
-      user_type: 'secretaria' as const,
-      avatar_url: null,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      school_id: '1',
-      secretaria_role: 'admin' as const
+      user_type: 'secretaria'
     },
     director: {
-      id: '4',
       name: 'Carlos Diretor',
       email: 'carlos@escola.com',
-      user_type: 'school_admin' as const,
-      avatar_url: null,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      school_id: '1',
-      secretaria_role: null
+      user_type: 'school_admin'
     },
     parent: {
-      id: '5',
       name: 'Fernanda Responsável',
       email: 'fernanda@email.com',
-      user_type: 'responsavel' as const,
-      avatar_url: null,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      school_id: '1',
-      secretaria_role: null
+      user_type: 'responsavel'
     }
   };
 

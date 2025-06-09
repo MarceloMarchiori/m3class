@@ -19,7 +19,15 @@ import {
 import { AttendanceManager } from '../AttendanceManager';
 import { NotificationSystem } from '../NotificationSystem';
 
-export const TeacherDashboard = () => {
+interface TeacherDashboardProps {
+  demoUser?: {
+    name: string;
+    email: string;
+    user_type: string;
+  };
+}
+
+export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ demoUser }) => {
   const [selectedPeriod, setSelectedPeriod] = useState('week');
 
   const metrics = [
@@ -91,6 +99,24 @@ export const TeacherDashboard = () => {
 
   return (
     <div className="space-y-6">
+      {/* Welcome Card */}
+      {demoUser && (
+        <Card className="border-0 shadow-md bg-white/80 backdrop-blur-sm">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-blue-100 rounded-full">
+                <Users className="h-8 w-8 text-blue-600" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold">Bem-vindo, {demoUser.name}!</h2>
+                <p className="text-muted-foreground">Professor - Matemática e Física</p>
+                <p className="text-sm text-blue-600">Último acesso: Hoje às 07:45</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Metrics Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {metrics.map((metric, index) => (
@@ -111,6 +137,7 @@ export const TeacherDashboard = () => {
         ))}
       </div>
 
+      {/* Main Content */}
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-white/60 backdrop-blur-sm">
           <TabsTrigger value="overview" className="flex items-center gap-2">

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -21,7 +20,7 @@ interface DirectorDashboardProps {
   demoUser: {
     name: string;
     email: string;
-    userType: string;
+    user_type: string;
   };
 }
 
@@ -79,7 +78,6 @@ export const DirectorDashboard: React.FC<DirectorDashboardProps> = ({ demoUser }
         </CardContent>
       </Card>
 
-      {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
