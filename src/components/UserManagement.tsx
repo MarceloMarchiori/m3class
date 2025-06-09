@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, UserPlus } from 'lucide-react';
 import { EnhancedUserCreationForm } from './EnhancedUserCreationForm';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface UserManagementProps {
   schools: any[];
@@ -12,6 +13,32 @@ interface UserManagementProps {
 
 export const UserManagement: React.FC<UserManagementProps> = ({ schools, onUserCreated }) => {
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const { profile } = useAuth();
+
+  // Verificar se o usuário tem permissão para criar usuários
+  const canCreateUsers = profile?.user_type === 'master' || 
+                         profile?.user_type === 'school_admin' || 
+                         profile?.user_type === 'secretaria';
+
+  if (!canCreateUsers) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <UserPlus className="h-5 w-5" />
+            Gerenciar Usuários
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-8 text-muted-foreground">
+            <UserPlus className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            <p>Você não tem permissão para gerenciar usuários.</p>
+            <p className="text-sm mt-2">Apenas administradores, diretores e secretarias podem criar usuários.</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (showCreateForm) {
     return (
@@ -58,7 +85,14 @@ export const UserManagement: React.FC<UserManagementProps> = ({ schools, onUserC
         <div className="text-center py-8 text-muted-foreground">
           <UserPlus className="h-12 w-12 mx-auto mb-4 opacity-50" />
           <p>Clique em "Novo Usuário" para começar a adicionar usuários ao sistema.</p>
-          <p className="text-sm mt-2">Use o formulário completo para criar usuários e vincular a múltiplas escolas.</p>
+          <p className="text-sm mt-2">
+            {profile?.user_type === 'master' ? 
+              'Como master, você pode criar qualquer tipo de usuário.' :
+              profile?.user_type === 'school_admin' ?
+              'Como administrador, você pode criar usuários para suas escolas.' :
+              'Como secretaria, você pode cadastrar alunos, professores e funcionários.'
+            }
+          </p>
         </div>
       </CardContent>
     </Card>

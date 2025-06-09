@@ -33,8 +33,7 @@ serve(async (req) => {
       password, 
       name, 
       user_type, 
-      school_ids,
-      isSchoolAdmin 
+      school_ids
     } = requestData
 
     // Validação básica
@@ -66,9 +65,26 @@ serve(async (req) => {
       )
     }
 
+    // Verificar se o usuário já existe
+    const { data: existingUser } = await supabaseClient.auth.admin.listUsers()
+    const userExists = existingUser.users.some(user => user.email === email)
+
+    if (userExists) {
+      console.error('User already exists with email:', email)
+      return new Response(
+        JSON.stringify({ 
+          error: 'Usuário já existe com este email'
+        }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
+    }
+
     console.log('Creating user with:', { email, name, user_type, school_ids })
 
-    // Criar usuário no Auth
+    // Criar usuário no Auth - o trigger handle_new_user criará o perfil automaticamente
     const { data: authData, error: authError } = await supabaseClient.auth.admin.createUser({
       email,
       password,
@@ -92,36 +108,44 @@ serve(async (req) => {
 
     console.log('User created in auth:', authData.user?.id)
 
-    // Criar perfil na tabela profiles
-    const profileData = {
-      id: authData.user!.id,
-      name,
-      email,
-      user_type
-    }
+    // Aguardar um pouco para o trigger criar o perfil
+    await new Promise(resolve => setTimeout(resolve, 1000))
 
-    console.log('Creating profile:', profileData)
-
-    const { error: profileError } = await supabaseClient
+    // Verificar se o perfil foi criado pelo trigger
+    const { data: profileData, error: profileCheckError } = await supabaseClient
       .from('profiles')
-      .insert(profileData)
+      .select('*')
+      .eq('id', authData.user!.id)
+      .single()
 
-    if (profileError) {
-      console.error('Profile error:', profileError)
-      
-      // Se falhar ao criar o perfil, remover o usuário do auth
-      await supabaseClient.auth.admin.deleteUser(authData.user!.id)
-      
-      return new Response(
-        JSON.stringify({ error: 'Failed to create user profile', details: profileError.message }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
+    if (profileCheckError || !profileData) {
+      console.error('Profile not found after creation, trigger may have failed')
+      // Se o perfil não foi criado pelo trigger, criar manualmente
+      const { error: manualProfileError } = await supabaseClient
+        .from('profiles')
+        .insert({
+          id: authData.user!.id,
+          name,
+          email,
+          user_type
+        })
+
+      if (manualProfileError) {
+        console.error('Manual profile creation error:', manualProfileError)
+        // Remover o usuário se falhar ao criar o perfil
+        await supabaseClient.auth.admin.deleteUser(authData.user!.id)
+        
+        return new Response(
+          JSON.stringify({ error: 'Failed to create user profile', details: manualProfileError.message }),
+          { 
+            status: 400, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        )
+      }
     }
 
-    console.log('Profile created successfully')
+    console.log('Profile confirmed or created successfully')
 
     // Criar relacionamentos na tabela user_schools para cada escola
     const userSchoolsData = school_ids.map(schoolId => ({

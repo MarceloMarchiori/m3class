@@ -55,16 +55,43 @@ export const EnhancedUserCreationForm = ({ schools, onUserCreated, onCancel }: E
     return schools.find(school => school.id === schoolId)?.name || 'Escola não encontrada';
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const validateForm = () => {
+    if (!userData.name.trim()) {
+      toast({
+        title: "Erro",
+        description: "Nome é obrigatório",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    if (!userData.email.trim()) {
+      toast({
+        title: "Erro",
+        description: "Email é obrigatório",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    // Validação básica de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(userData.email)) {
+      toast({
+        title: "Erro",
+        description: "Email inválido",
+        variant: "destructive",
+      });
+      return false;
+    }
+
     if (userData.password !== userData.confirmPassword) {
       toast({
         title: "Erro",
         description: "As senhas não coincidem",
         variant: "destructive",
       });
-      return;
+      return false;
     }
 
     if (userData.password.length < 6) {
@@ -73,7 +100,16 @@ export const EnhancedUserCreationForm = ({ schools, onUserCreated, onCancel }: E
         description: "A senha deve ter pelo menos 6 caracteres",
         variant: "destructive",
       });
-      return;
+      return false;
+    }
+
+    if (!userData.user_type) {
+      toast({
+        title: "Erro",
+        description: "Selecione o tipo de usuário",
+        variant: "destructive",
+      });
+      return false;
     }
 
     if (selectedSchools.length === 0) {
@@ -82,24 +118,50 @@ export const EnhancedUserCreationForm = ({ schools, onUserCreated, onCancel }: E
         description: "Selecione pelo menos uma escola",
         variant: "destructive",
       });
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
       return;
     }
 
     setLoading(true);
 
     try {
+      console.log('Enviando dados para criação do usuário:', {
+        email: userData.email,
+        name: userData.name.trim(),
+        user_type: userData.user_type,
+        school_ids: selectedSchools
+      });
+
       const { data, error } = await supabase.functions.invoke('create-user', {
         body: {
-          email: userData.email,
+          email: userData.email.trim(),
           password: userData.password,
-          name: userData.name,
+          name: userData.name.trim(),
           user_type: userData.user_type,
-          school_ids: selectedSchools,
-          isSchoolAdmin: userData.user_type === 'school_admin'
+          school_ids: selectedSchools
         }
       });
 
-      if (error) throw error;
+      console.log('Resposta da função:', { data, error });
+
+      if (error) {
+        console.error('Erro na função:', error);
+        throw error;
+      }
+
+      if (data?.error) {
+        console.error('Erro retornado pela função:', data.error);
+        throw new Error(data.error);
+      }
 
       toast({
         title: "Usuário criado com sucesso!",
@@ -119,9 +181,18 @@ export const EnhancedUserCreationForm = ({ schools, onUserCreated, onCancel }: E
       onUserCreated();
     } catch (error: any) {
       console.error('Error creating user:', error);
+      
+      let errorMessage = "Não foi possível criar o usuário";
+      
+      if (error.message) {
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+
       toast({
         title: "Erro ao criar usuário",
-        description: error.message || "Não foi possível criar o usuário",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
