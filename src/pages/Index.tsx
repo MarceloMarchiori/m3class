@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { DashboardCard } from "@/components/DashboardCard";
 import { GradeInput } from "@/components/GradeInput";
@@ -28,7 +29,9 @@ import {
   Settings,
   Building,
   GraduationCap,
-  User
+  User,
+  LogOut,
+  Crown
 } from "lucide-react";
 import { SchoolDepartments } from "@/components/SchoolDepartments";
 import { CalendarManager } from "@/components/CalendarManager";
@@ -36,8 +39,11 @@ import { EnrollmentSystem } from "@/components/EnrollmentSystem";
 import { StaffManagement } from "@/components/StaffManagement";
 import { TeacherManagement } from "@/components/TeacherManagement";
 import { UserProfile } from "@/types/school";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
+  const { user, profile, signOut } = useAuth();
+  const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState<UserProfile>({
     id: "1",
     name: "Prof. Maria Silva",
@@ -45,6 +51,36 @@ const Index = () => {
     permissions: [],
     isActive: true
   });
+
+  useEffect(() => {
+    if (profile) {
+      // Mapear o perfil do Supabase para o tipo local
+      const mappedRole = profile.user_type === 'master' ? 'secretaria' : 
+                        profile.user_type === 'school_admin' ? 'secretaria' :
+                        profile.user_type;
+      
+      setCurrentUser({
+        id: profile.id,
+        name: profile.name,
+        role: mappedRole,
+        subRole: profile.user_type === 'master' ? 'diretor' : profile.secretaria_role,
+        permissions: [],
+        isActive: true
+      });
+    }
+  }, [profile]);
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/auth');
+  };
+
+  // Se é usuário master, redirecionar para dashboard específico
+  useEffect(() => {
+    if (profile?.user_type === 'master') {
+      navigate('/master');
+    }
+  }, [profile, navigate]);
 
   // Mock data
   const mockStudents = [
@@ -525,17 +561,54 @@ const Index = () => {
               <p className="text-xl text-muted-foreground">
                 Sua plataforma digital escolar completa
               </p>
+              {profile && (
+                <div className="flex items-center gap-2 mt-2">
+                  <Badge variant="outline" className="flex items-center gap-1">
+                    <User className="h-3 w-3" />
+                    {profile.name}
+                  </Badge>
+                  {profile.schools && (
+                    <Badge variant="secondary" className="flex items-center gap-1">
+                      <Building className="h-3 w-3" />
+                      {profile.schools.name}
+                    </Badge>
+                  )}
+                  {profile.user_type === 'master' && (
+                    <Badge className="flex items-center gap-1 bg-gradient-to-r from-purple-500 to-pink-500">
+                      <Crown className="h-3 w-3" />
+                      Master
+                    </Badge>
+                  )}
+                </div>
+              )}
             </div>
             
-            {/* Seletor de Perfil */}
+            {/* Botões de ação */}
             <div className="flex items-center gap-4">
+              {profile?.user_type === 'master' && (
+                <Button 
+                  onClick={() => navigate('/master')}
+                  className="flex items-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                >
+                  <Crown className="h-4 w-4" />
+                  Painel Master
+                </Button>
+              )}
               <div className="text-right">
-                <div className="text-sm text-muted-foreground">Alternar perfil:</div>
+                <div className="text-sm text-muted-foreground">Usuário logado:</div>
               </div>
               <UserProfileSwitcher 
                 currentUser={currentUser}
                 onUserChange={setCurrentUser}
               />
+              <Button 
+                variant="outline" 
+                onClick={handleSignOut}
+                className="flex items-center gap-2"
+              >
+                <LogOut className="h-4 w-4" />
+                Sair
+              </Button>
             </div>
           </div>
         </div>

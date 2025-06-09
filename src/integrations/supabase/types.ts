@@ -9,7 +9,96 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string
+          id: string
+          name: string
+          school_id: string | null
+          secretaria_role: Database["public"]["Enums"]["secretaria_role"] | null
+          updated_at: string
+          user_type: Database["public"]["Enums"]["user_type"]
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email: string
+          id: string
+          name: string
+          school_id?: string | null
+          secretaria_role?:
+            | Database["public"]["Enums"]["secretaria_role"]
+            | null
+          updated_at?: string
+          user_type?: Database["public"]["Enums"]["user_type"]
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          school_id?: string | null
+          secretaria_role?:
+            | Database["public"]["Enums"]["secretaria_role"]
+            | null
+          updated_at?: string
+          user_type?: Database["public"]["Enums"]["user_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_profiles_school"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      schools: {
+        Row: {
+          address: string | null
+          city: string | null
+          created_at: string
+          email: string | null
+          id: string
+          is_active: boolean
+          name: string
+          phone: string | null
+          state: string | null
+          updated_at: string
+          zip_code: string | null
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          phone?: string | null
+          state?: string | null
+          updated_at?: string
+          zip_code?: string | null
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          phone?: string | null
+          state?: string | null
+          updated_at?: string
+          zip_code?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -18,7 +107,17 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      secretaria_role:
+        | "diretor"
+        | "secretario_educacao"
+        | "secretaria_operacional"
+      user_type:
+        | "master"
+        | "school_admin"
+        | "professor"
+        | "aluno"
+        | "responsavel"
+        | "secretaria"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -133,6 +232,20 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      secretaria_role: [
+        "diretor",
+        "secretario_educacao",
+        "secretaria_operacional",
+      ],
+      user_type: [
+        "master",
+        "school_admin",
+        "professor",
+        "aluno",
+        "responsavel",
+        "secretaria",
+      ],
+    },
   },
 } as const
