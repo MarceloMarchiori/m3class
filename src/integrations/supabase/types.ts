@@ -240,6 +240,7 @@ export type Database = {
       schools: {
         Row: {
           address: string | null
+          admin_user_id: string | null
           city: string | null
           created_at: string
           email: string | null
@@ -253,6 +254,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          admin_user_id?: string | null
           city?: string | null
           created_at?: string
           email?: string | null
@@ -266,6 +268,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          admin_user_id?: string | null
           city?: string | null
           created_at?: string
           email?: string | null
@@ -277,7 +280,51 @@ export type Database = {
           updated_at?: string
           zip_code?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "schools_admin_user_id_fkey"
+            columns: ["admin_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_schools: {
+        Row: {
+          created_at: string
+          id: string
+          school_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          school_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          school_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_schools_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_schools_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
@@ -292,12 +339,23 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      get_user_schools: {
+        Args: { user_uuid: string }
+        Returns: {
+          school_id: string
+          school_name: string
+        }[]
+      }
       is_current_user_master: {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
       is_master_user: {
         Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      user_has_school_access: {
+        Args: { user_uuid: string; school_uuid: string }
         Returns: boolean
       }
     }

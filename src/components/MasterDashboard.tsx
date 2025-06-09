@@ -2,48 +2,37 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { 
   Building, 
   Plus, 
   Users, 
-  School, 
   Crown, 
   DollarSign,
   MessageSquare,
-  FileText,
   TrendingUp,
   Calendar,
-  Settings
+  UserPlus
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { UserManagement } from './UserManagement';
 import { FinancialDashboard } from './FinancialDashboard';
 import { MessagingSystem } from './MessagingSystem';
+import { SchoolCreationForm } from './SchoolCreationForm';
+import { EnhancedUserCreationForm } from './EnhancedUserCreationForm';
 
 export const MasterDashboard = () => {
   const [schools, setSchools] = useState([]);
   const [profiles, setProfiles] = useState([]);
   const [subscriptions, setSubscriptions] = useState([]);
   const [payments, setPayments] = useState([]);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isSchoolDialogOpen, setIsSchoolDialogOpen] = useState(false);
+  const [isUserDialogOpen, setIsUserDialogOpen] = useState(false);
   const { toast } = useToast();
-  
-  const [newSchool, setNewSchool] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    address: '',
-    city: '',
-    state: '',
-    zip_code: ''
-  });
 
   useEffect(() => {
     fetchData();
@@ -59,10 +48,16 @@ export const MasterDashboard = () => {
 
       if (schoolsError) throw schoolsError;
 
-      // Buscar perfis
+      // Buscar perfis com escolas associadas via user_schools
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select('*, schools(*)')
+        .select(`
+          *,
+          user_schools!inner(
+            school_id,
+            schools(name)
+          )
+        `)
         .order('created_at', { ascending: false });
 
       if (profilesError) throw profilesError;
@@ -96,44 +91,6 @@ export const MasterDashboard = () => {
       });
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleCreateSchool = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    try {
-      const { data, error } = await supabase
-        .from('schools')
-        .insert([newSchool])
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      setSchools([data, ...schools]);
-      setNewSchool({
-        name: '',
-        email: '',
-        phone: '',
-        address: '',
-        city: '',
-        state: '',
-        zip_code: ''
-      });
-      setIsDialogOpen(false);
-      
-      toast({
-        title: "Escola criada!",
-        description: "A escola foi criada com sucesso",
-      });
-    } catch (error) {
-      console.error('Error creating school:', error);
-      toast({
-        title: "Erro ao criar escola",
-        description: "Não foi possível criar a escola",
-        variant: "destructive",
-      });
     }
   };
 
@@ -293,7 +250,7 @@ export const MasterDashboard = () => {
               Comunicação
             </TabsTrigger>
             <TabsTrigger value="manage-users" className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
+              <UserPlus className="h-4 w-4" />
               Criar Usuários
             </TabsTrigger>
           </TabsList>
@@ -365,82 +322,13 @@ export const MasterDashboard = () => {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle>Gerenciar Escolas</CardTitle>
-                  <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                    <DialogTrigger asChild>
-                      <Button className="flex items-center gap-2">
-                        <Plus className="h-4 w-4" />
-                        Nova Escola
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-md">
-                      <DialogHeader>
-                        <DialogTitle>Criar Nova Escola</DialogTitle>
-                      </DialogHeader>
-                      <form onSubmit={handleCreateSchool} className="space-y-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="name">Nome da Escola</Label>
-                          <Input
-                            id="name"
-                            value={newSchool.name}
-                            onChange={(e) => setNewSchool({ ...newSchool, name: e.target.value })}
-                            placeholder="Nome da escola"
-                            required
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="email">Email</Label>
-                          <Input
-                            id="email"
-                            type="email"
-                            value={newSchool.email}
-                            onChange={(e) => setNewSchool({ ...newSchool, email: e.target.value })}
-                            placeholder="contato@escola.com"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="phone">Telefone</Label>
-                          <Input
-                            id="phone"
-                            value={newSchool.phone}
-                            onChange={(e) => setNewSchool({ ...newSchool, phone: e.target.value })}
-                            placeholder="(11) 99999-9999"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="address">Endereço</Label>
-                          <Input
-                            id="address"
-                            value={newSchool.address}
-                            onChange={(e) => setNewSchool({ ...newSchool, address: e.target.value })}
-                            placeholder="Rua, número"
-                          />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="city">Cidade</Label>
-                            <Input
-                              id="city"
-                              value={newSchool.city}
-                              onChange={(e) => setNewSchool({ ...newSchool, city: e.target.value })}
-                              placeholder="Cidade"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="state">Estado</Label>
-                            <Input
-                              id="state"
-                              value={newSchool.state}
-                              onChange={(e) => setNewSchool({ ...newSchool, state: e.target.value })}
-                              placeholder="SP"
-                            />
-                          </div>
-                        </div>
-                        <Button type="submit" className="w-full">
-                          Criar Escola
-                        </Button>
-                      </form>
-                    </DialogContent>
-                  </Dialog>
+                  <Button 
+                    className="flex items-center gap-2"
+                    onClick={() => setIsSchoolDialogOpen(true)}
+                  >
+                    <Plus className="h-4 w-4" />
+                    Nova Escola
+                  </Button>
                 </div>
               </CardHeader>
               <CardContent>
@@ -480,7 +368,16 @@ export const MasterDashboard = () => {
           <TabsContent value="users">
             <Card>
               <CardHeader>
-                <CardTitle>Usuários Cadastrados</CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle>Usuários Cadastrados</CardTitle>
+                  <Button 
+                    className="flex items-center gap-2"
+                    onClick={() => setIsUserDialogOpen(true)}
+                  >
+                    <UserPlus className="h-4 w-4" />
+                    Novo Usuário
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -493,9 +390,9 @@ export const MasterDashboard = () => {
                         <div>
                           <h3 className="font-semibold">{profile.name}</h3>
                           <p className="text-sm text-muted-foreground">{profile.email}</p>
-                          {profile.schools && (
+                          {profile.user_schools && profile.user_schools.length > 0 && (
                             <p className="text-xs text-muted-foreground">
-                              Escola: {profile.schools.name}
+                              Escolas: {profile.user_schools.map((us: any) => us.schools.name).join(', ')}
                             </p>
                           )}
                         </div>
@@ -522,6 +419,38 @@ export const MasterDashboard = () => {
             <UserManagement schools={schools} onUserCreated={fetchData} />
           </TabsContent>
         </Tabs>
+
+        {/* Dialogs */}
+        <Dialog open={isSchoolDialogOpen} onOpenChange={setIsSchoolDialogOpen}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Criar Nova Escola</DialogTitle>
+            </DialogHeader>
+            <SchoolCreationForm 
+              onSchoolCreated={() => {
+                setIsSchoolDialogOpen(false);
+                fetchData();
+              }}
+              onCancel={() => setIsSchoolDialogOpen(false)}
+            />
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={isUserDialogOpen} onOpenChange={setIsUserDialogOpen}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Criar Novo Usuário</DialogTitle>
+            </DialogHeader>
+            <EnhancedUserCreationForm 
+              schools={schools}
+              onUserCreated={() => {
+                setIsUserDialogOpen(false);
+                fetchData();
+              }}
+              onCancel={() => setIsUserDialogOpen(false)}
+            />
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
