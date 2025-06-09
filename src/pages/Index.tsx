@@ -35,20 +35,15 @@ import { CalendarManager } from "@/components/CalendarManager";
 import { EnrollmentSystem } from "@/components/EnrollmentSystem";
 import { StaffManagement } from "@/components/StaffManagement";
 import { TeacherManagement } from "@/components/TeacherManagement";
-
-interface UserProfile {
-  id: string;
-  name: string;
-  role: "professor" | "aluno" | "responsavel" | "secretaria";
-  subRole?: "diretor" | "secretario_educacao" | "secretaria_operacional";
-  avatar?: string;
-}
+import { UserProfile } from "@/types/school";
 
 const Index = () => {
   const [currentUser, setCurrentUser] = useState<UserProfile>({
     id: "1",
     name: "Prof. Maria Silva",
-    role: "professor"
+    role: "professor",
+    permissions: [],
+    isActive: true
   });
 
   // Mock data
