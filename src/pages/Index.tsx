@@ -5,6 +5,10 @@ import { DashboardCard } from "@/components/DashboardCard";
 import { GradeInput } from "@/components/GradeInput";
 import { AttendanceTracker } from "@/components/AttendanceTracker";
 import { Calendar } from "@/components/Calendar";
+import { UserProfileSwitcher } from "@/components/UserProfileSwitcher";
+import { StudentManagement } from "@/components/StudentManagement";
+import { ChildrenOverview } from "@/components/ChildrenOverview";
+import { SchoolReports } from "@/components/SchoolReports";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -21,12 +25,25 @@ import {
   School,
   Trophy,
   Clock,
-  UserCheck
+  UserCheck,
+  Settings,
+  Building,
+  GraduationCap
 } from "lucide-react";
 
+interface UserProfile {
+  id: string;
+  name: string;
+  role: "professor" | "aluno" | "responsavel" | "secretaria";
+  avatar?: string;
+}
+
 const Index = () => {
-  const [userRole] = useState<"professor" | "aluno" | "responsavel" | "secretaria">("professor");
-  const [userName] = useState("Prof. Maria Silva");
+  const [currentUser, setCurrentUser] = useState<UserProfile>({
+    id: "1",
+    name: "Prof. Maria Silva",
+    role: "professor"
+  });
 
   // Mock data
   const mockStudents = [
@@ -185,10 +202,10 @@ const Index = () => {
           className="gradient-card"
         />
         <DashboardCard
-          title="Faltas"
+          title="Tarefas Pendentes"
           value="3"
           icon={Clock}
-          subtitle="No bimestre"
+          subtitle="Para entregar"
           className="gradient-card"
         />
       </div>
@@ -248,20 +265,181 @@ const Index = () => {
       </div>
 
       {/* Calendário */}
-      <Calendar />
+      <Tabs defaultValue="calendario" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="calendario">Calendário</TabsTrigger>
+          <TabsTrigger value="tarefas">Tarefas</TabsTrigger>
+          <TabsTrigger value="historico">Histórico</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="calendario">
+          <Calendar />
+        </TabsContent>
+
+        <TabsContent value="tarefas">
+          <Card>
+            <CardHeader>
+              <CardTitle>Tarefas e Trabalhos</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">Funcionalidade em desenvolvimento.</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="historico">
+          <Card>
+            <CardHeader>
+              <CardTitle>Histórico Acadêmico</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">Funcionalidade em desenvolvimento.</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+
+  const renderResponsavelDashboard = () => (
+    <div className="space-y-6">
+      {/* Cards de Estatísticas do Responsável */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <DashboardCard
+          title="Filhos Matriculados"
+          value="2"
+          icon={Users}
+          subtitle="João (9º) e Maria (6º)"
+          className="gradient-card"
+        />
+        <DashboardCard
+          title="Média Familiar"
+          value="8.95"
+          icon={Trophy}
+          trend={{ value: 0.5, isPositive: true }}
+          className="gradient-card"
+        />
+        <DashboardCard
+          title="Frequência Média"
+          value="97%"
+          icon={UserCheck}
+          subtitle="Excelente frequência"
+          className="gradient-card"
+        />
+        <DashboardCard
+          title="Próximas Avaliações"
+          value="4"
+          icon={CalendarIcon}
+          subtitle="Nesta semana"
+          className="gradient-card"
+        />
+      </div>
+
+      <ChildrenOverview />
+    </div>
+  );
+
+  const renderSecretariaDashboard = () => (
+    <div className="space-y-6">
+      {/* Cards de Estatísticas da Secretaria */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <DashboardCard
+          title="Total de Alunos"
+          value="485"
+          icon={Users}
+          subtitle="Toda a escola"
+          className="gradient-card"
+        />
+        <DashboardCard
+          title="Professores Ativos"
+          value="28"
+          icon={GraduationCap}
+          subtitle="18 turmas"
+          className="gradient-card"
+        />
+        <DashboardCard
+          title="Média Escolar"
+          value="8.1"
+          icon={BarChart3}
+          trend={{ value: 0.3, isPositive: true }}
+          className="gradient-card"
+        />
+        <DashboardCard
+          title="Taxa de Aprovação"
+          value="91.5%"
+          icon={Trophy}
+          subtitle="Acima da meta"
+          className="gradient-card"
+        />
+      </div>
+
+      <Tabs defaultValue="alunos" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="alunos" className="flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            Gestão de Alunos
+          </TabsTrigger>
+          <TabsTrigger value="relatorios" className="flex items-center gap-2">
+            <FileText className="h-4 w-4" />
+            Relatórios
+          </TabsTrigger>
+          <TabsTrigger value="calendario" className="flex items-center gap-2">
+            <CalendarIcon className="h-4 w-4" />
+            Calendário Escolar
+          </TabsTrigger>
+          <TabsTrigger value="configuracoes" className="flex items-center gap-2">
+            <Settings className="h-4 w-4" />
+            Configurações
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="alunos">
+          <StudentManagement />
+        </TabsContent>
+
+        <TabsContent value="relatorios">
+          <SchoolReports />
+        </TabsContent>
+
+        <TabsContent value="calendario">
+          <Calendar />
+        </TabsContent>
+
+        <TabsContent value="configuracoes">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="h-5 w-5" />
+                Configurações do Sistema
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <p className="text-muted-foreground">
+                  Área de configurações do sistema escolar.
+                </p>
+                <Button disabled>
+                  <Building className="h-4 w-4 mr-2" />
+                  Configurações Avançadas
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 
   const renderDashboard = () => {
-    switch (userRole) {
+    switch (currentUser.role) {
       case "professor":
         return renderProfessorDashboard();
       case "aluno":
         return renderAlunoDashboard();
       case "responsavel":
-        return renderAlunoDashboard(); // Similar ao aluno, mas com perspectiva de responsável
+        return renderResponsavelDashboard();
       case "secretaria":
-        return renderProfessorDashboard(); // Por enquanto igual ao professor
+        return renderSecretariaDashboard();
       default:
         return renderProfessorDashboard();
     }
@@ -270,20 +448,35 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
       <Header 
-        userRole={userRole} 
-        userName={userName}
+        userRole={currentUser.role} 
+        userName={currentUser.name}
         onMenuToggle={() => console.log("Menu toggle")}
       />
       
       <main className="container mx-auto p-6">
         {/* Welcome Section */}
-        <div className="mb-8 text-center">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">
-            Bem-vindo ao EduDiário
-          </h1>
-          <p className="text-xl text-muted-foreground">
-            Sua plataforma digital escolar completa
-          </p>
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">
+                Bem-vindo ao EduDiário
+              </h1>
+              <p className="text-xl text-muted-foreground">
+                Sua plataforma digital escolar completa
+              </p>
+            </div>
+            
+            {/* Seletor de Perfil */}
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <div className="text-sm text-muted-foreground">Alternar perfil:</div>
+              </div>
+              <UserProfileSwitcher 
+                currentUser={currentUser}
+                onUserChange={setCurrentUser}
+              />
+            </div>
+          </div>
         </div>
 
         {renderDashboard()}
