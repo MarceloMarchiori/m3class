@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,7 +12,17 @@ interface CalendarEvent {
   description?: string;
 }
 
-export const Calendar = () => {
+interface CalendarProps {
+  userRole?: string;
+}
+
+export const Calendar = ({ userRole }: CalendarProps) => {
+  // Se o usuário for da secretaria, usar o CalendarManager
+  if (userRole === "secretaria") {
+    const { CalendarManager } = require("./CalendarManager");
+    return <CalendarManager />;
+  }
+
   const [currentDate, setCurrentDate] = useState(new Date());
   
   // Mock events data

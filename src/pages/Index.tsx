@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Header } from "@/components/Header";
 import { DashboardCard } from "@/components/DashboardCard";
@@ -30,6 +29,9 @@ import {
   Building,
   GraduationCap
 } from "lucide-react";
+import { SchoolDepartments } from "@/components/SchoolDepartments";
+import { CalendarManager } from "@/components/CalendarManager";
+import { EnrollmentSystem } from "@/components/EnrollmentSystem";
 
 interface UserProfile {
   id: string;
@@ -374,10 +376,14 @@ const Index = () => {
       </div>
 
       <Tabs defaultValue="alunos" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="alunos" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
             Gestão de Alunos
+          </TabsTrigger>
+          <TabsTrigger value="matriculas" className="flex items-center gap-2">
+            <GraduationCap className="h-4 w-4" />
+            Matrículas
           </TabsTrigger>
           <TabsTrigger value="relatorios" className="flex items-center gap-2">
             <FileText className="h-4 w-4" />
@@ -397,34 +403,20 @@ const Index = () => {
           <StudentManagement />
         </TabsContent>
 
+        <TabsContent value="matriculas">
+          <EnrollmentSystem />
+        </TabsContent>
+
         <TabsContent value="relatorios">
           <SchoolReports />
         </TabsContent>
 
         <TabsContent value="calendario">
-          <Calendar />
+          <CalendarManager />
         </TabsContent>
 
         <TabsContent value="configuracoes">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Settings className="h-5 w-5" />
-                Configurações do Sistema
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <p className="text-muted-foreground">
-                  Área de configurações do sistema escolar.
-                </p>
-                <Button disabled>
-                  <Building className="h-4 w-4 mr-2" />
-                  Configurações Avançadas
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <SchoolDepartments />
         </TabsContent>
       </Tabs>
     </div>
