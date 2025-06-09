@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -11,6 +10,7 @@ interface Profile {
   user_type: 'master' | 'school_admin' | 'professor' | 'aluno' | 'responsavel' | 'secretaria';
   school_id?: string;
   avatar_url?: string;
+  secretaria_role?: 'diretor' | 'secretario_educacao' | 'secretaria_operacional';
 }
 
 interface AuthContextType {

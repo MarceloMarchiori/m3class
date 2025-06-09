@@ -14,9 +14,9 @@ const Teste = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
-  const [profiles, setProfiles] = useState([]);
-  const [schools, setSchools] = useState([]);
-  const [userSchools, setUserSchools] = useState([]);
+  const [profiles, setProfiles] = useState<any[]>([]);
+  const [schools, setSchools] = useState<any[]>([]);
+  const [userSchools, setUserSchools] = useState<any[]>([]);
 
   useEffect(() => {
     fetchTestData();
@@ -62,7 +62,7 @@ const Teste = () => {
       console.log('Schools:', schoolsData);
       console.log('User Schools:', userSchoolsData);
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching test data:', error);
       toast({
         title: "Erro ao carregar dados de teste",
