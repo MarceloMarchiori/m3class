@@ -1,8 +1,13 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   BookOpen, 
   Users, 
@@ -12,7 +17,8 @@ import {
   MessageSquare,
   FileText,
   Clock,
-  GraduationCap
+  GraduationCap,
+  Upload
 } from 'lucide-react';
 
 interface TeacherDashboardProps {
@@ -24,6 +30,12 @@ interface TeacherDashboardProps {
 }
 
 export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ demoUser }) => {
+  const [selectedClass, setSelectedClass] = useState('');
+  const [selectedStudent, setSelectedStudent] = useState('');
+  const [grade, setGrade] = useState('');
+  const [lessonContent, setLessonContent] = useState('');
+  const [messageText, setMessageText] = useState('');
+
   const teacherStats = {
     totalClasses: 5,
     totalStudents: 127,
@@ -32,6 +44,9 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ demoUser }) 
     pendingGrades: 8,
     nextClass: '3º Ano A - Matemática'
   };
+
+  const classes = ['3º Ano A', '3º Ano B', '4º Ano A', '5º Ano A', '5º Ano B'];
+  const students = ['João Silva', 'Maria Santos', 'Pedro Costa', 'Ana Oliveira', 'Carlos Souza'];
 
   const todaySchedule = [
     { time: '08:00 - 08:50', class: '3º Ano A', subject: 'Matemática', room: 'Sala 12' },
@@ -55,6 +70,30 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ demoUser }) 
     { task: 'Reunião pedagógica', deadline: 'Segunda-feira', priority: 'baixa' }
   ];
 
+  const handleGradeSubmit = () => {
+    console.log('Nota lançada:', { class: selectedClass, student: selectedStudent, grade });
+    // Reset form
+    setSelectedClass('');
+    setSelectedStudent('');
+    setGrade('');
+  };
+
+  const handleAttendanceSubmit = () => {
+    console.log('Frequência registrada para:', selectedClass);
+    setSelectedClass('');
+  };
+
+  const handleContentSubmit = () => {
+    console.log('Conteúdo lecionado:', { class: selectedClass, content: lessonContent });
+    setSelectedClass('');
+    setLessonContent('');
+  };
+
+  const handleMessageSubmit = () => {
+    console.log('Comunicado enviado:', messageText);
+    setMessageText('');
+  };
+
   return (
     <div className="space-y-6">
       {/* Header com informações do professor */}
@@ -69,6 +108,197 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ demoUser }) 
               <p className="text-muted-foreground">Professor(a) de Matemática</p>
               <p className="text-sm text-green-600">Próxima aula: {teacherStats.nextClass} às 08:00</p>
             </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Ações rápidas - Movido para o topo */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <GraduationCap className="h-5 w-5" />
+            Ações Rápidas
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button className="h-20 flex flex-col gap-2">
+                  <ClipboardCheck className="h-6 w-6" />
+                  <span className="text-sm">Lançar Notas</span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Lançar Notas</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="class-select">Turma</Label>
+                    <Select value={selectedClass} onValueChange={setSelectedClass}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione a turma" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {classes.map((cls) => (
+                          <SelectItem key={cls} value={cls}>{cls}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="student-select">Aluno</Label>
+                    <Select value={selectedStudent} onValueChange={setSelectedStudent}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o aluno" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {students.map((student) => (
+                          <SelectItem key={student} value={student}>{student}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="grade">Nota</Label>
+                    <Input
+                      id="grade"
+                      type="number"
+                      max="10"
+                      min="0"
+                      step="0.1"
+                      value={grade}
+                      onChange={(e) => setGrade(e.target.value)}
+                      placeholder="0.0"
+                    />
+                  </div>
+                  <Button onClick={handleGradeSubmit} className="w-full">
+                    Lançar Nota
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="h-20 flex flex-col gap-2">
+                  <Calendar className="h-6 w-6" />
+                  <span className="text-sm">Registrar Frequência</span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Registrar Frequência</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="class-attendance">Turma</Label>
+                    <Select value={selectedClass} onValueChange={setSelectedClass}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione a turma" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {classes.map((cls) => (
+                          <SelectItem key={cls} value={cls}>{cls}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Alunos Presentes</Label>
+                    {students.map((student) => (
+                      <div key={student} className="flex items-center space-x-2">
+                        <input type="checkbox" id={student} defaultChecked />
+                        <label htmlFor={student} className="text-sm">{student}</label>
+                      </div>
+                    ))}
+                  </div>
+                  <Button onClick={handleAttendanceSubmit} className="w-full">
+                    Registrar Frequência
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="h-20 flex flex-col gap-2">
+                  <FileText className="h-6 w-6" />
+                  <span className="text-sm">Conteúdo Lecionado</span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Conteúdo Lecionado</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="class-content">Turma</Label>
+                    <Select value={selectedClass} onValueChange={setSelectedClass}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione a turma" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {classes.map((cls) => (
+                          <SelectItem key={cls} value={cls}>{cls}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="lesson-content">Conteúdo da Aula</Label>
+                    <Textarea
+                      id="lesson-content"
+                      value={lessonContent}
+                      onChange={(e) => setLessonContent(e.target.value)}
+                      placeholder="Descreva o conteúdo lecionado na aula..."
+                      rows={4}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="lesson-photos">Fotos da Aula (opcional)</Label>
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                      <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
+                      <p className="text-sm text-gray-500">Clique para adicionar fotos ou arraste aqui</p>
+                      <input type="file" multiple accept="image/*" className="hidden" />
+                    </div>
+                  </div>
+                  <Button onClick={handleContentSubmit} className="w-full">
+                    Salvar Conteúdo
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="h-20 flex flex-col gap-2">
+                  <MessageSquare className="h-6 w-6" />
+                  <span className="text-sm">Comunicados</span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Enviar Comunicado</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="message-content">Mensagem</Label>
+                    <Textarea
+                      id="message-content"
+                      value={messageText}
+                      onChange={(e) => setMessageText(e.target.value)}
+                      placeholder="Digite sua mensagem..."
+                      rows={4}
+                    />
+                  </div>
+                  <Button onClick={handleMessageSubmit} className="w-full">
+                    Enviar Comunicado
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </CardContent>
       </Card>
@@ -229,36 +459,6 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ demoUser }) 
                 </div>
               </div>
             ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Ações rápidas */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <GraduationCap className="h-5 w-5" />
-            Ações Rápidas
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Button className="h-20 flex flex-col gap-2">
-              <ClipboardCheck className="h-6 w-6" />
-              <span className="text-sm">Lançar Notas</span>
-            </Button>
-            <Button variant="outline" className="h-20 flex flex-col gap-2">
-              <Calendar className="h-6 w-6" />
-              <span className="text-sm">Registrar Frequência</span>
-            </Button>
-            <Button variant="outline" className="h-20 flex flex-col gap-2">
-              <FileText className="h-6 w-6" />
-              <span className="text-sm">Material de Aula</span>
-            </Button>
-            <Button variant="outline" className="h-20 flex flex-col gap-2">
-              <MessageSquare className="h-6 w-6" />
-              <span className="text-sm">Comunicados</span>
-            </Button>
           </div>
         </CardContent>
       </Card>

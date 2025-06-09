@@ -1,8 +1,8 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { BookOpen, Calendar, TrendingUp, Clock, FileText, MessageSquare, User } from 'lucide-react';
 
 interface StudentDashboardProps {
@@ -52,6 +52,130 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ demoUser }) 
         </CardContent>
       </Card>
 
+      {/* Ações Rápidas - Movido para o topo */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Ações Rápidas</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button className="h-20 flex flex-col gap-2">
+                  <BookOpen className="h-6 w-6" />
+                  <span className="text-sm">Minhas Notas</span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Minhas Notas</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  {recentGrades.map((grade, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div>
+                        <p className="font-medium">{grade.subject}</p>
+                        <p className="text-sm text-muted-foreground">{grade.assignment}</p>
+                        <p className="text-xs text-muted-foreground">{grade.date}</p>
+                      </div>
+                      <Badge variant={grade.grade >= 9 ? 'default' : grade.grade >= 7 ? 'secondary' : 'destructive'}>
+                        {grade.grade}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="h-20 flex flex-col gap-2">
+                  <FileText className="h-6 w-6" />
+                  <span className="text-sm">Atividades</span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Atividades Pendentes</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div className="p-3 border rounded-lg">
+                    <p className="font-medium">Exercícios de Matemática</p>
+                    <p className="text-sm text-muted-foreground">Prazo: Amanhã</p>
+                    <Badge variant="destructive" className="mt-2">Urgente</Badge>
+                  </div>
+                  <div className="p-3 border rounded-lg">
+                    <p className="font-medium">Redação sobre meio ambiente</p>
+                    <p className="text-sm text-muted-foreground">Prazo: Sexta-feira</p>
+                    <Badge variant="default" className="mt-2">Pendente</Badge>
+                  </div>
+                  <div className="p-3 border rounded-lg">
+                    <p className="font-medium">Pesquisa de História</p>
+                    <p className="text-sm text-muted-foreground">Prazo: Próxima semana</p>
+                    <Badge variant="secondary" className="mt-2">Em andamento</Badge>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="h-20 flex flex-col gap-2">
+                  <Calendar className="h-6 w-6" />
+                  <span className="text-sm">Calendário</span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Calendário Escolar</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div className="p-3 border rounded-lg">
+                    <p className="font-medium">Prova de Ciências</p>
+                    <p className="text-sm text-muted-foreground">15 de Junho</p>
+                  </div>
+                  <div className="p-3 border rounded-lg">
+                    <p className="font-medium">Reunião de Pais</p>
+                    <p className="text-sm text-muted-foreground">20 de Junho</p>
+                  </div>
+                  <div className="p-3 border rounded-lg">
+                    <p className="font-medium">Festa Junina</p>
+                    <p className="text-sm text-muted-foreground">25 de Junho</p>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="h-20 flex flex-col gap-2">
+                  <MessageSquare className="h-6 w-6" />
+                  <span className="text-sm">Comunicados</span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Comunicados da Escola</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div className="p-3 border rounded-lg">
+                    <p className="font-medium">Mudança no horário</p>
+                    <p className="text-sm text-muted-foreground">A aula de educação física foi transferida para sexta-feira.</p>
+                    <p className="text-xs text-muted-foreground">Hoje</p>
+                  </div>
+                  <div className="p-3 border rounded-lg">
+                    <p className="font-medium">Material necessário</p>
+                    <p className="text-sm text-muted-foreground">Trazer material de arte para aula de amanhã.</p>
+                    <p className="text-xs text-muted-foreground">Ontem</p>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Resto do conteúdo permanece igual */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -147,31 +271,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ demoUser }) 
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Ações Rápidas</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Button className="h-20 flex flex-col gap-2">
-              <BookOpen className="h-6 w-6" />
-              <span className="text-sm">Minhas Notas</span>
-            </Button>
-            <Button variant="outline" className="h-20 flex flex-col gap-2">
-              <FileText className="h-6 w-6" />
-              <span className="text-sm">Atividades</span>
-            </Button>
-            <Button variant="outline" className="h-20 flex flex-col gap-2">
-              <Calendar className="h-6 w-6" />
-              <span className="text-sm">Calendário</span>
-            </Button>
-            <Button variant="outline" className="h-20 flex flex-col gap-2">
-              <MessageSquare className="h-6 w-6" />
-              <span className="text-sm">Comunicados</span>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      
     </div>
   );
 };
