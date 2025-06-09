@@ -1,8 +1,13 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Users, 
   GraduationCap, 
@@ -25,6 +30,11 @@ interface DirectorDashboardProps {
 }
 
 export const DirectorDashboard: React.FC<DirectorDashboardProps> = ({ demoUser }) => {
+  const [newStudent, setNewStudent] = useState({ name: '', class: '', parent: '' });
+  const [newTeacher, setNewTeacher] = useState({ name: '', subject: '', email: '' });
+  const [newClass, setNewClass] = useState({ name: '', teacher: '', students: '' });
+  const [newMessage, setNewMessage] = useState({ title: '', content: '', target: '' });
+
   const schoolStats = {
     totalStudents: 847,
     totalTeachers: 42,
@@ -48,6 +58,30 @@ export const DirectorDashboard: React.FC<DirectorDashboardProps> = ({ demoUser }
     { task: 'Análise do orçamento mensal', priority: 'baixa', deadline: 'Próxima semana' }
   ];
 
+  const handleStudentSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('Novo aluno:', newStudent);
+    setNewStudent({ name: '', class: '', parent: '' });
+  };
+
+  const handleTeacherSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('Novo professor:', newTeacher);
+    setNewTeacher({ name: '', subject: '', email: '' });
+  };
+
+  const handleClassSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('Nova turma:', newClass);
+    setNewClass({ name: '', teacher: '', students: '' });
+  };
+
+  const handleMessageSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('Novo comunicado:', newMessage);
+    setNewMessage({ title: '', content: '', target: '' });
+  };
+
   return (
     <div className="space-y-6">
       {/* Header com informações do diretor */}
@@ -62,6 +96,225 @@ export const DirectorDashboard: React.FC<DirectorDashboardProps> = ({ demoUser }
               <p className="text-muted-foreground">Diretor(a) - Escola Municipal Santos Dumont</p>
               <p className="text-sm text-blue-600">Último acesso: Hoje às 08:30</p>
             </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Ações rápidas - Movido para o topo */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Settings className="h-5 w-5" />
+            Ações Rápidas
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button className="h-20 flex flex-col gap-2">
+                  <Users className="h-6 w-6" />
+                  <span className="text-sm">Gerenciar Alunos</span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Cadastrar Novo Aluno</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleStudentSubmit} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="student-name">Nome do Aluno</Label>
+                    <Input
+                      id="student-name"
+                      value={newStudent.name}
+                      onChange={(e) => setNewStudent({ ...newStudent, name: e.target.value })}
+                      placeholder="Nome completo"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="student-class">Turma</Label>
+                    <Select value={newStudent.class} onValueChange={(value) => setNewStudent({ ...newStudent, class: value })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione a turma" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1a">1º Ano A</SelectItem>
+                        <SelectItem value="1b">1º Ano B</SelectItem>
+                        <SelectItem value="2a">2º Ano A</SelectItem>
+                        <SelectItem value="3a">3º Ano A</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="student-parent">Nome do Responsável</Label>
+                    <Input
+                      id="student-parent"
+                      value={newStudent.parent}
+                      onChange={(e) => setNewStudent({ ...newStudent, parent: e.target.value })}
+                      placeholder="Nome do responsável"
+                      required
+                    />
+                  </div>
+                  <Button type="submit" className="w-full">Cadastrar Aluno</Button>
+                </form>
+              </DialogContent>
+            </Dialog>
+
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="h-20 flex flex-col gap-2">
+                  <GraduationCap className="h-6 w-6" />
+                  <span className="text-sm">Professores</span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Cadastrar Novo Professor</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleTeacherSubmit} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="teacher-name">Nome do Professor</Label>
+                    <Input
+                      id="teacher-name"
+                      value={newTeacher.name}
+                      onChange={(e) => setNewTeacher({ ...newTeacher, name: e.target.value })}
+                      placeholder="Nome completo"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="teacher-subject">Matéria</Label>
+                    <Select value={newTeacher.subject} onValueChange={(value) => setNewTeacher({ ...newTeacher, subject: value })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione a matéria" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="matematica">Matemática</SelectItem>
+                        <SelectItem value="portugues">Português</SelectItem>
+                        <SelectItem value="ciencias">Ciências</SelectItem>
+                        <SelectItem value="historia">História</SelectItem>
+                        <SelectItem value="geografia">Geografia</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="teacher-email">Email</Label>
+                    <Input
+                      id="teacher-email"
+                      type="email"
+                      value={newTeacher.email}
+                      onChange={(e) => setNewTeacher({ ...newTeacher, email: e.target.value })}
+                      placeholder="email@escola.com"
+                      required
+                    />
+                  </div>
+                  <Button type="submit" className="w-full">Cadastrar Professor</Button>
+                </form>
+              </DialogContent>
+            </Dialog>
+
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="h-20 flex flex-col gap-2">
+                  <BookOpen className="h-6 w-6" />
+                  <span className="text-sm">Turmas</span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Criar Nova Turma</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleClassSubmit} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="class-name">Nome da Turma</Label>
+                    <Input
+                      id="class-name"
+                      value={newClass.name}
+                      onChange={(e) => setNewClass({ ...newClass, name: e.target.value })}
+                      placeholder="Ex: 5º Ano A"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="class-teacher">Professor Responsável</Label>
+                    <Select value={newClass.teacher} onValueChange={(value) => setNewClass({ ...newClass, teacher: value })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o professor" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="maria">Prof. Maria Silva</SelectItem>
+                        <SelectItem value="joao">Prof. João Santos</SelectItem>
+                        <SelectItem value="ana">Prof. Ana Costa</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="class-students">Número de Alunos</Label>
+                    <Input
+                      id="class-students"
+                      type="number"
+                      value={newClass.students}
+                      onChange={(e) => setNewClass({ ...newClass, students: e.target.value })}
+                      placeholder="25"
+                      required
+                    />
+                  </div>
+                  <Button type="submit" className="w-full">Criar Turma</Button>
+                </form>
+              </DialogContent>
+            </Dialog>
+
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="h-20 flex flex-col gap-2">
+                  <MessageSquare className="h-6 w-6" />
+                  <span className="text-sm">Comunicados</span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Enviar Comunicado</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleMessageSubmit} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="message-title">Título</Label>
+                    <Input
+                      id="message-title"
+                      value={newMessage.title}
+                      onChange={(e) => setNewMessage({ ...newMessage, title: e.target.value })}
+                      placeholder="Título do comunicado"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="message-target">Destinatário</Label>
+                    <Select value={newMessage.target} onValueChange={(value) => setNewMessage({ ...newMessage, target: value })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o destinatário" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Todos os Pais</SelectItem>
+                        <SelectItem value="teachers">Professores</SelectItem>
+                        <SelectItem value="class">Turma Específica</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="message-content">Conteúdo</Label>
+                    <Textarea
+                      id="message-content"
+                      value={newMessage.content}
+                      onChange={(e) => setNewMessage({ ...newMessage, content: e.target.value })}
+                      placeholder="Digite o conteúdo do comunicado..."
+                      rows={4}
+                      required
+                    />
+                  </div>
+                  <Button type="submit" className="w-full">Enviar Comunicado</Button>
+                </form>
+              </DialogContent>
+            </Dialog>
           </div>
         </CardContent>
       </Card>
@@ -201,36 +454,6 @@ export const DirectorDashboard: React.FC<DirectorDashboardProps> = ({ demoUser }
           </CardContent>
         </Card>
       </div>
-
-      {/* Ações rápidas */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Settings className="h-5 w-5" />
-            Ações Rápidas
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Button className="h-20 flex flex-col gap-2">
-              <Users className="h-6 w-6" />
-              <span className="text-sm">Gerenciar Alunos</span>
-            </Button>
-            <Button variant="outline" className="h-20 flex flex-col gap-2">
-              <GraduationCap className="h-6 w-6" />
-              <span className="text-sm">Professores</span>
-            </Button>
-            <Button variant="outline" className="h-20 flex flex-col gap-2">
-              <BookOpen className="h-6 w-6" />
-              <span className="text-sm">Turmas</span>
-            </Button>
-            <Button variant="outline" className="h-20 flex flex-col gap-2">
-              <MessageSquare className="h-6 w-6" />
-              <span className="text-sm">Comunicados</span>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 };

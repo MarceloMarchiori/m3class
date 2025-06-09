@@ -33,8 +33,8 @@ serve(async (req) => {
       password, 
       name, 
       user_type, 
-      school_id, 
-      secretaria_role 
+      school_ids,
+      isSchoolAdmin 
     } = requestData
 
     // Validação básica
@@ -52,7 +52,21 @@ serve(async (req) => {
       )
     }
 
-    console.log('Creating user with:', { email, name, user_type, school_id, secretaria_role })
+    // Validar se school_ids foi fornecido e é um array
+    if (!school_ids || !Array.isArray(school_ids) || school_ids.length === 0) {
+      console.error('Missing or invalid school_ids')
+      return new Response(
+        JSON.stringify({ 
+          error: 'Missing or invalid school_ids - must be a non-empty array'
+        }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
+    }
+
+    console.log('Creating user with:', { email, name, user_type, school_ids })
 
     // Criar usuário no Auth
     const { data: authData, error: authError } = await supabaseClient.auth.admin.createUser({
@@ -60,9 +74,7 @@ serve(async (req) => {
       password,
       user_metadata: {
         name,
-        user_type,
-        school_id,
-        secretaria_role
+        user_type
       },
       email_confirm: true
     })
@@ -85,9 +97,7 @@ serve(async (req) => {
       id: authData.user!.id,
       name,
       email,
-      user_type,
-      school_id: school_id || null,
-      secretaria_role: secretaria_role || null
+      user_type
     }
 
     console.log('Creating profile:', profileData)
@@ -113,24 +123,35 @@ serve(async (req) => {
 
     console.log('Profile created successfully')
 
-    // Criar relacionamento na tabela user_schools se school_id foi fornecido
-    if (school_id) {
-      console.log('Creating user-school relationship:', { user_id: authData.user!.id, school_id })
-      
-      const { error: userSchoolError } = await supabaseClient
-        .from('user_schools')
-        .insert({
-          user_id: authData.user!.id,
-          school_id: school_id
-        })
+    // Criar relacionamentos na tabela user_schools para cada escola
+    const userSchoolsData = school_ids.map(schoolId => ({
+      user_id: authData.user!.id,
+      school_id: schoolId
+    }))
 
-      if (userSchoolError) {
-        console.error('User-school relationship error:', userSchoolError)
-        // Não falhar aqui, apenas logar o erro
-      } else {
-        console.log('User-school relationship created successfully')
-      }
+    console.log('Creating user-school relationships:', userSchoolsData)
+    
+    const { error: userSchoolError } = await supabaseClient
+      .from('user_schools')
+      .insert(userSchoolsData)
+
+    if (userSchoolError) {
+      console.error('User-school relationship error:', userSchoolError)
+      
+      // Se falhar ao criar os relacionamentos, remover usuário e perfil
+      await supabaseClient.from('profiles').delete().eq('id', authData.user!.id)
+      await supabaseClient.auth.admin.deleteUser(authData.user!.id)
+      
+      return new Response(
+        JSON.stringify({ error: 'Failed to create user-school relationships', details: userSchoolError.message }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
     }
+
+    console.log('User-school relationships created successfully')
 
     return new Response(
       JSON.stringify({ 
@@ -140,7 +161,7 @@ serve(async (req) => {
           email: authData.user!.email,
           name,
           user_type,
-          school_id
+          school_ids
         }
       }),
       { 

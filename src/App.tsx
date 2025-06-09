@@ -44,7 +44,7 @@ function App() {
                     <Master />
                   </ProtectedRoute>
                 } />
-                {/* Página de teste agora é o dashboard demo da escola */}
+                {/* Página de teste pública - sem proteção de autenticação */}
                 <Route path="/teste" element={<Teste />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
