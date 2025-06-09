@@ -1,10 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { 
   Building, 
   Plus, 
@@ -14,7 +14,10 @@ import {
   MessageSquare,
   TrendingUp,
   Calendar,
-  UserPlus
+  UserPlus,
+  Edit,
+  Trash2,
+  CreditCard
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -23,6 +26,9 @@ import { FinancialDashboard } from './FinancialDashboard';
 import { MessagingSystem } from './MessagingSystem';
 import { SchoolCreationForm } from './SchoolCreationForm';
 import { EnhancedUserCreationForm } from './EnhancedUserCreationForm';
+import { SchoolEditForm } from './SchoolEditForm';
+import { UserEditForm } from './UserEditForm';
+import { SubscriptionEditForm } from './SubscriptionEditForm';
 
 export const MasterDashboard = () => {
   const [schools, setSchools] = useState([]);
@@ -32,6 +38,9 @@ export const MasterDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [isSchoolDialogOpen, setIsSchoolDialogOpen] = useState(false);
   const [isUserDialogOpen, setIsUserDialogOpen] = useState(false);
+  const [editingSchool, setEditingSchool] = useState(null);
+  const [editingUser, setEditingUser] = useState(null);
+  const [editingSubscription, setEditingSubscription] = useState(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -40,7 +49,6 @@ export const MasterDashboard = () => {
 
   const fetchData = async () => {
     try {
-      // Buscar escolas
       const { data: schoolsData, error: schoolsError } = await supabase
         .from('schools')
         .select('*')
@@ -48,7 +56,6 @@ export const MasterDashboard = () => {
 
       if (schoolsError) throw schoolsError;
 
-      // Buscar perfis com escolas associadas via user_schools
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
         .select(`
@@ -62,7 +69,6 @@ export const MasterDashboard = () => {
 
       if (profilesError) throw profilesError;
 
-      // Buscar assinaturas
       const { data: subscriptionsData, error: subscriptionsError } = await supabase
         .from('school_subscriptions')
         .select('*, schools(name)')
@@ -70,7 +76,6 @@ export const MasterDashboard = () => {
 
       if (subscriptionsError) throw subscriptionsError;
 
-      // Buscar pagamentos
       const { data: paymentsData, error: paymentsError } = await supabase
         .from('payment_history')
         .select('*')
@@ -94,6 +99,88 @@ export const MasterDashboard = () => {
     }
   };
 
+  const handleDeleteSchool = async (schoolId: string) => {
+    try {
+      const { error } = await supabase
+        .from('schools')
+        .delete()
+        .eq('id', schoolId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Escola excluída com sucesso!",
+        description: "A escola foi removida do sistema.",
+      });
+
+      fetchData();
+    } catch (error: any) {
+      console.error('Error deleting school:', error);
+      toast({
+        title: "Erro ao excluir escola",
+        description: error.message || "Não foi possível excluir a escola",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    try {
+      // Primeiro remover relacionamentos
+      await supabase
+        .from('user_schools')
+        .delete()
+        .eq('user_id', userId);
+
+      // Depois remover o perfil
+      const { error } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', userId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Usuário excluído com sucesso!",
+        description: "O usuário foi removido do sistema.",
+      });
+
+      fetchData();
+    } catch (error: any) {
+      console.error('Error deleting user:', error);
+      toast({
+        title: "Erro ao excluir usuário",
+        description: error.message || "Não foi possível excluir o usuário",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteSubscription = async (subscriptionId: string) => {
+    try {
+      const { error } = await supabase
+        .from('school_subscriptions')
+        .delete()
+        .eq('id', subscriptionId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Assinatura excluída com sucesso!",
+        description: "A assinatura foi removida do sistema.",
+      });
+
+      fetchData();
+    } catch (error: any) {
+      console.error('Error deleting subscription:', error);
+      toast({
+        title: "Erro ao excluir assinatura",
+        description: error.message || "Não foi possível excluir a assinatura",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getUserTypeLabel = (userType: string) => {
     const labels = {
       master: 'Master',
@@ -103,7 +190,7 @@ export const MasterDashboard = () => {
       responsavel: 'Responsável',
       secretaria: 'Secretaria'
     };
-    return labels[userType as keyof typeof labels] || userType;
+    return labels[userType as keyof labels] || userType;
   };
 
   const getUserTypeBadgeVariant = (userType: string): "default" | "destructive" | "outline" | "secondary" => {
@@ -118,7 +205,6 @@ export const MasterDashboard = () => {
     return variants[userType] || 'outline';
   };
 
-  // Calcular estatísticas
   const totalRevenue = payments
     .filter(p => p.status === 'paid')
     .reduce((sum, p) => sum + Number(p.amount), 0);
@@ -141,10 +227,61 @@ export const MasterDashboard = () => {
     );
   }
 
+  if (editingSchool) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background p-6">
+        <div className="container mx-auto max-w-4xl">
+          <SchoolEditForm
+            school={editingSchool}
+            onSchoolUpdated={() => {
+              setEditingSchool(null);
+              fetchData();
+            }}
+            onCancel={() => setEditingSchool(null)}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  if (editingUser) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background p-6">
+        <div className="container mx-auto max-w-4xl">
+          <UserEditForm
+            user={editingUser}
+            schools={schools}
+            onUserUpdated={() => {
+              setEditingUser(null);
+              fetchData();
+            }}
+            onCancel={() => setEditingUser(null)}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  if (editingSubscription) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background p-6">
+        <div className="container mx-auto max-w-4xl">
+          <SubscriptionEditForm
+            subscription={editingSubscription}
+            onSubscriptionUpdated={() => {
+              setEditingSubscription(null);
+              fetchData();
+            }}
+            onCancel={() => setEditingSubscription(null)}
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background p-6">
       <div className="container mx-auto max-w-7xl">
-        {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-4">
             <div className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl">
@@ -159,7 +296,6 @@ export const MasterDashboard = () => {
           </div>
         </div>
 
-        {/* Cards de Estatísticas Principais */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card className="gradient-card">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -212,7 +348,6 @@ export const MasterDashboard = () => {
           </Card>
         </div>
 
-        {/* Alertas importantes */}
         {overduePayments > 0 && (
           <Card className="mb-6 border-orange-200 bg-orange-50">
             <CardContent className="pt-6">
@@ -226,9 +361,8 @@ export const MasterDashboard = () => {
           </Card>
         )}
 
-        {/* Tabs principais */}
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <TrendingUp className="h-4 w-4" />
               Visão Geral
@@ -245,6 +379,10 @@ export const MasterDashboard = () => {
               <Users className="h-4 w-4" />
               Usuários
             </TabsTrigger>
+            <TabsTrigger value="subscriptions" className="flex items-center gap-2">
+              <CreditCard className="h-4 w-4" />
+              Assinaturas
+            </TabsTrigger>
             <TabsTrigger value="messages" className="flex items-center gap-2">
               <MessageSquare className="h-4 w-4" />
               Comunicação
@@ -255,7 +393,6 @@ export const MasterDashboard = () => {
             </TabsTrigger>
           </TabsList>
 
-          {/* Tab de Visão Geral */}
           <TabsContent value="overview">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card>
@@ -311,12 +448,10 @@ export const MasterDashboard = () => {
             </div>
           </TabsContent>
 
-          {/* Tab Financeiro */}
           <TabsContent value="financial">
             <FinancialDashboard />
           </TabsContent>
 
-          {/* Tab de Escolas */}
           <TabsContent value="schools">
             <Card>
               <CardHeader>
@@ -356,6 +491,37 @@ export const MasterDashboard = () => {
                         {subscriptions.find((s: any) => s.school_id === school.id) && (
                           <Badge variant="outline">Com Assinatura</Badge>
                         )}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setEditingSchool(school)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="outline" size="sm">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Tem certeza que deseja excluir a escola "{school.name}"? Esta ação não pode ser desfeita.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDeleteSchool(school.id)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Excluir
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </div>
                   ))}
@@ -364,7 +530,6 @@ export const MasterDashboard = () => {
             </Card>
           </TabsContent>
 
-          {/* Tab de Usuários */}
           <TabsContent value="users">
             <Card>
               <CardHeader>
@@ -401,6 +566,37 @@ export const MasterDashboard = () => {
                         <Badge variant={getUserTypeBadgeVariant(profile.user_type)}>
                           {getUserTypeLabel(profile.user_type)}
                         </Badge>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setEditingUser(profile)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="outline" size="sm">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Tem certeza que deseja excluir o usuário "{profile.name}"? Esta ação não pode ser desfeita.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDeleteUser(profile.id)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Excluir
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </div>
                   ))}
@@ -409,18 +605,81 @@ export const MasterDashboard = () => {
             </Card>
           </TabsContent>
 
-          {/* Tab de Comunicação */}
+          <TabsContent value="subscriptions">
+            <Card>
+              <CardHeader>
+                <CardTitle>Gerenciar Assinaturas</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {subscriptions.map((subscription: any) => (
+                    <div key={subscription.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50">
+                      <div className="flex items-center gap-4">
+                        <div className="p-2 bg-purple-100 rounded-lg">
+                          <CreditCard className="h-5 w-5 text-purple-600" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold">{subscription.schools?.name}</h3>
+                          <p className="text-sm text-muted-foreground">
+                            Plano: {subscription.plan_name} - R$ {subscription.monthly_value}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Vencimento dia {subscription.due_day} de cada mês
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant={subscription.status === 'active' ? 'default' : 'secondary'}>
+                          {subscription.status === 'active' ? 'Ativa' : subscription.status}
+                        </Badge>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setEditingSubscription(subscription)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="outline" size="sm">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Tem certeza que deseja excluir a assinatura da escola "{subscription.schools?.name}"? Esta ação não pode ser desfeita.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDeleteSubscription(subscription.id)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Excluir
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           <TabsContent value="messages">
             <MessagingSystem />
           </TabsContent>
 
-          {/* Tab de Gerenciar Usuários */}
           <TabsContent value="manage-users">
             <UserManagement schools={schools} onUserCreated={fetchData} />
           </TabsContent>
         </Tabs>
 
-        {/* Dialogs */}
         <Dialog open={isSchoolDialogOpen} onOpenChange={setIsSchoolDialogOpen}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
