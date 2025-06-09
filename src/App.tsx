@@ -42,11 +42,8 @@ function App() {
                   <Master />
                 </ProtectedRoute>
               } />
-              <Route path="/teste" element={
-                <ProtectedRoute>
-                  <Teste />
-                </ProtectedRoute>
-              } />
+              {/* Página de teste agora é pública */}
+              <Route path="/teste" element={<Teste />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AuthProvider>

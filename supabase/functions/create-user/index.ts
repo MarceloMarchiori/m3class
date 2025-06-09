@@ -1,12 +1,11 @@
 
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.0';
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+}
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -15,151 +14,152 @@ serve(async (req) => {
   }
 
   try {
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      return new Response(JSON.stringify({ error: 'Authorization header required' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    // Criar cliente Supabase com service role para operações administrativas
-    const supabaseAdmin = createClient(
-      'https://ofbhoebgllkfmlcvtanr.supabase.co',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
       {
         auth: {
           autoRefreshToken: false,
-          persistSession: false,
-        },
+          persistSession: false
+        }
       }
-    );
+    )
 
-    // Criar cliente normal para verificar permissões
-    const supabase = createClient(
-      'https://ofbhoebgllkfmlcvtanr.supabase.co',
-      Deno.env.get('SUPABASE_ANON_KEY')!,
-      {
-        global: {
-          headers: {
-            Authorization: authHeader,
-          },
-        },
-      }
-    );
+    const requestData = await req.json()
+    console.log('Received request data:', requestData)
 
-    // Verificar se o usuário atual é master
-    const { data: isMaster } = await supabase.rpc('is_current_user_master');
-    if (!isMaster) {
-      return new Response(JSON.stringify({ error: 'Unauthorized: Only master users can create users' }), {
-        status: 403,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
+    const { 
+      email, 
+      password, 
+      name, 
+      user_type, 
+      school_id, 
+      secretaria_role 
+    } = requestData
 
-    const { email, password, name, user_type, school_ids, isSchoolAdmin = false } = await req.json();
-
-    console.log('Received data:', { email, name, user_type, school_ids, isSchoolAdmin });
-
+    // Validação básica
     if (!email || !password || !name || !user_type) {
-      return new Response(JSON.stringify({ error: 'Missing required fields: email, password, name, user_type' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      console.error('Missing required fields')
+      return new Response(
+        JSON.stringify({ 
+          error: 'Missing required fields', 
+          details: { email: !!email, password: !!password, name: !!name, user_type: !!user_type }
+        }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
     }
+
+    console.log('Creating user with:', { email, name, user_type, school_id, secretaria_role })
 
     // Criar usuário no Auth
-    const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.createUser({
+    const { data: authData, error: authError } = await supabaseClient.auth.admin.createUser({
       email,
       password,
-      email_confirm: true,
       user_metadata: {
         name,
         user_type,
+        school_id,
+        secretaria_role
       },
-    });
+      email_confirm: true
+    })
 
     if (authError) {
-      console.error('Error creating auth user:', authError);
-      return new Response(JSON.stringify({ error: authError.message }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      console.error('Auth error:', authError)
+      return new Response(
+        JSON.stringify({ error: 'Failed to create user', details: authError.message }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
     }
 
-    console.log('Auth user created:', authUser.user.id);
+    console.log('User created in auth:', authData.user?.id)
 
-    // Criar perfil do usuário
-    const { data: profile, error: profileError } = await supabaseAdmin
+    // Criar perfil na tabela profiles
+    const profileData = {
+      id: authData.user!.id,
+      name,
+      email,
+      user_type,
+      school_id: school_id || null,
+      secretaria_role: secretaria_role || null
+    }
+
+    console.log('Creating profile:', profileData)
+
+    const { error: profileError } = await supabaseClient
       .from('profiles')
-      .insert({
-        id: authUser.user.id,
-        name,
-        email,
-        user_type,
-      })
-      .select()
-      .single();
+      .insert(profileData)
 
     if (profileError) {
-      console.error('Error creating profile:', profileError);
-      // Se falhar, deletar o usuário de auth também
-      await supabaseAdmin.auth.admin.deleteUser(authUser.user.id);
-      return new Response(JSON.stringify({ error: `Profile creation failed: ${profileError.message}` }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    console.log('Profile created:', profile.id);
-
-    // Associar usuário às escolas selecionadas
-    if (school_ids && school_ids.length > 0) {
-      const userSchoolsData = school_ids.map((school_id: string) => ({
-        user_id: authUser.user.id,
-        school_id,
-      }));
-
-      const { error: userSchoolsError } = await supabaseAdmin
-        .from('user_schools')
-        .insert(userSchoolsData);
-
-      if (userSchoolsError) {
-        console.error('Error associating user to schools:', userSchoolsError);
-        // Não vamos falhar completamente por causa disso, apenas logar o erro
-      } else {
-        console.log('User associated to schools:', school_ids);
-      }
-
-      // Se for admin da escola, atualizar o campo admin_user_id da primeira escola
-      if (isSchoolAdmin && school_ids.length > 0) {
-        const { error: schoolUpdateError } = await supabaseAdmin
-          .from('schools')
-          .update({ admin_user_id: authUser.user.id })
-          .eq('id', school_ids[0]);
-
-        if (schoolUpdateError) {
-          console.error('Error setting school admin:', schoolUpdateError);
-          // Não vamos falhar completamente por causa disso, apenas logar o erro
-        } else {
-          console.log('School admin set for school:', school_ids[0]);
+      console.error('Profile error:', profileError)
+      
+      // Se falhar ao criar o perfil, remover o usuário do auth
+      await supabaseClient.auth.admin.deleteUser(authData.user!.id)
+      
+      return new Response(
+        JSON.stringify({ error: 'Failed to create user profile', details: profileError.message }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         }
+      )
+    }
+
+    console.log('Profile created successfully')
+
+    // Criar relacionamento na tabela user_schools se school_id foi fornecido
+    if (school_id) {
+      console.log('Creating user-school relationship:', { user_id: authData.user!.id, school_id })
+      
+      const { error: userSchoolError } = await supabaseClient
+        .from('user_schools')
+        .insert({
+          user_id: authData.user!.id,
+          school_id: school_id
+        })
+
+      if (userSchoolError) {
+        console.error('User-school relationship error:', userSchoolError)
+        // Não falhar aqui, apenas logar o erro
+      } else {
+        console.log('User-school relationship created successfully')
       }
     }
 
-    return new Response(JSON.stringify({ 
-      user: authUser.user,
-      profile,
-      message: 'User created successfully'
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({ 
+        success: true, 
+        user: {
+          id: authData.user!.id,
+          email: authData.user!.email,
+          name,
+          user_type,
+          school_id
+        }
+      }),
+      { 
+        status: 200, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
+    )
 
   } catch (error) {
-    console.error('Error in create-user function:', error);
-    return new Response(JSON.stringify({ error: `Server error: ${error.message}` }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    console.error('Unexpected error:', error)
+    return new Response(
+      JSON.stringify({ 
+        error: 'Internal server error', 
+        details: error instanceof Error ? error.message : 'Unknown error'
+      }),
+      { 
+        status: 500, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
+    )
   }
-});
+})
