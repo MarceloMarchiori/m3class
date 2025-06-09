@@ -30,7 +30,6 @@ import { useNavigate } from 'react-router-dom';
 import { ModernMetricCard } from './ModernMetricCard';
 import { AdvancedChartCard } from './AdvancedChartCard';
 import { DashboardFilters } from './DashboardFilters';
-import { UserManagement } from './UserManagement';
 import { FinancialDashboard } from './FinancialDashboard';
 import { MessagingSystem } from './MessagingSystem';
 import { SchoolCreationForm } from './SchoolCreationForm';
@@ -67,6 +66,7 @@ export const MasterDashboard = () => {
 
       if (schoolsError) throw schoolsError;
 
+      // Buscar apenas usuários admin escola e master
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
         .select(`
@@ -76,6 +76,7 @@ export const MasterDashboard = () => {
             schools(name)
           )
         `)
+        .in('user_type', ['master', 'school_admin'])
         .order('created_at', { ascending: false });
 
       if (profilesError) throw profilesError;
@@ -195,11 +196,7 @@ export const MasterDashboard = () => {
   const getUserTypeLabel = (userType: string) => {
     const labels: Record<string, string> = {
       master: 'Master',
-      school_admin: 'Admin Escola',
-      professor: 'Professor',
-      aluno: 'Aluno',
-      responsavel: 'Responsável',
-      secretaria: 'Secretaria'
+      school_admin: 'Admin Escola'
     };
     return labels[userType] || userType;
   };
@@ -207,11 +204,7 @@ export const MasterDashboard = () => {
   const getUserTypeBadgeVariant = (userType: string): "default" | "destructive" | "outline" | "secondary" => {
     const variants: Record<string, "default" | "destructive" | "outline" | "secondary"> = {
       master: 'default',
-      school_admin: 'secondary',
-      professor: 'outline',
-      aluno: 'outline',
-      responsavel: 'outline',
-      secretaria: 'outline'
+      school_admin: 'secondary'
     };
     return variants[userType] || 'outline';
   };
@@ -268,7 +261,7 @@ export const MasterDashboard = () => {
 
   if (editingSchool) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 p-6">
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 p-4 sm:p-6">
         <div className="container mx-auto max-w-4xl">
           <SchoolEditForm
             school={editingSchool}
@@ -285,7 +278,7 @@ export const MasterDashboard = () => {
 
   if (editingUser) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 p-6">
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 p-4 sm:p-6">
         <div className="container mx-auto max-w-4xl">
           <UserEditForm
             user={editingUser}
@@ -303,7 +296,7 @@ export const MasterDashboard = () => {
 
   if (editingSubscription) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 p-6">
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 p-4 sm:p-6">
         <div className="container mx-auto max-w-4xl">
           <SubscriptionEditForm
             subscription={editingSubscription}
@@ -319,19 +312,19 @@ export const MasterDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 p-4 sm:p-6">
       <div className="container mx-auto max-w-7xl">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="p-4 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl shadow-lg">
-              <Crown className="h-10 w-10 text-white" />
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
+            <div className="p-3 sm:p-4 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl shadow-lg">
+              <Crown className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
             </div>
             <div>
-              <h1 className="text-5xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+              <h1 className="text-3xl sm:text-5xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
                 Dashboard Master
               </h1>
-              <p className="text-xl text-gray-600 font-medium">Gestão Comercial Avançada - EduDiário</p>
+              <p className="text-lg sm:text-xl text-gray-600 font-medium">Gestão Comercial Avançada - EduDiário</p>
             </div>
           </div>
           
@@ -343,7 +336,7 @@ export const MasterDashboard = () => {
         </div>
 
         {/* Modern Metric Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
           <ModernMetricCard
             title="Receita Total"
             value={`R$ ${totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
@@ -372,7 +365,7 @@ export const MasterDashboard = () => {
           />
           
           <ModernMetricCard
-            title="Usuários Ativos"
+            title="Admins Cadastrados"
             value={profiles.length}
             change={{ value: 22.1, isPositive: true }}
             sparklineData={sparklineData}
@@ -397,130 +390,51 @@ export const MasterDashboard = () => {
           </Card>
         )}
 
-        <Tabs defaultValue="overview" className="space-y-8">
-          <TabsList className="grid w-full grid-cols-7 bg-white/60 backdrop-blur-sm border-0 shadow-lg rounded-xl p-2">
-            <TabsTrigger value="overview" className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white">
-              <PieChart className="h-4 w-4" />
-              Analytics
-            </TabsTrigger>
-            <TabsTrigger value="financial" className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white">
-              <DollarSign className="h-4 w-4" />
-              Financeiro
-            </TabsTrigger>
-            <TabsTrigger value="schools" className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white">
-              <Building className="h-4 w-4" />
-              Escolas
-            </TabsTrigger>
-            <TabsTrigger value="users" className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white">
-              <Users className="h-4 w-4" />
-              Usuários
-            </TabsTrigger>
-            <TabsTrigger value="subscriptions" className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white">
-              <CreditCard className="h-4 w-4" />
-              Assinaturas
-            </TabsTrigger>
-            <TabsTrigger value="messages" className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white">
-              <MessageSquare className="h-4 w-4" />
-              Comunicação
-            </TabsTrigger>
-            <TabsTrigger value="manage-users" className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white">
-              <UserPlus className="h-4 w-4" />
-              Criar Usuários
-            </TabsTrigger>
+        <Tabs defaultValue="financial" className="space-y-6 sm:space-y-8">
+          <TabsList className="w-full bg-white/60 backdrop-blur-sm border-0 shadow-lg rounded-xl p-1 sm:p-2 h-auto">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-1 sm:gap-2 w-full">
+              <TabsTrigger 
+                value="financial" 
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 rounded-lg p-2 sm:p-3 text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white"
+              >
+                <DollarSign className="h-4 w-4" />
+                <span className="hidden sm:inline">Financeiro</span>
+                <span className="sm:hidden">Finance</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="schools" 
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 rounded-lg p-2 sm:p-3 text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white"
+              >
+                <Building className="h-4 w-4" />
+                <span className="hidden sm:inline">Escolas</span>
+                <span className="sm:hidden">Escolas</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="users" 
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 rounded-lg p-2 sm:p-3 text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white"
+              >
+                <Users className="h-4 w-4" />
+                <span className="hidden sm:inline">Usuários</span>
+                <span className="sm:hidden">Users</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="subscriptions" 
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 rounded-lg p-2 sm:p-3 text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white"
+              >
+                <CreditCard className="h-4 w-4" />
+                <span className="hidden sm:inline">Assinaturas</span>
+                <span className="sm:hidden">Plans</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="messages" 
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 rounded-lg p-2 sm:p-3 text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white"
+              >
+                <MessageSquare className="h-4 w-4" />
+                <span className="hidden sm:inline">Comunicação</span>
+                <span className="sm:hidden">Chat</span>
+              </TabsTrigger>
+            </div>
           </TabsList>
-
-          <TabsContent value="overview" className="space-y-6">
-            {/* Charts Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-              <AdvancedChartCard
-                title="Receita ao Longo do Tempo"
-                type="area"
-                data={revenueData}
-                height={350}
-              />
-              
-              <AdvancedChartCard
-                title="Distribuição de Usuários"
-                type="pie"
-                data={userTypeData}
-                height={350}
-              />
-            </div>
-
-            {/* KPI Cards */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <Card className="shadow-lg border-0 bg-gradient-to-br from-white/80 to-gray-50/80 backdrop-blur-sm">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Target className="h-5 w-5 text-indigo-600" />
-                    Metas e Objetivos
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span>Meta de Receita Mensal:</span>
-                    <Badge variant="default" className="bg-gradient-to-r from-green-500 to-emerald-500">85%</Badge>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span>Crescimento de Usuários:</span>
-                    <Badge variant="default" className="bg-gradient-to-r from-blue-500 to-indigo-500">122%</Badge>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span>Satisfação Clientes:</span>
-                    <Badge variant="default" className="bg-gradient-to-r from-purple-500 to-pink-500">94%</Badge>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="shadow-lg border-0 bg-gradient-to-br from-white/80 to-gray-50/80 backdrop-blur-sm">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Award className="h-5 w-5 text-amber-600" />
-                    Performance
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span>Assinaturas Ativas:</span>
-                    <Badge variant="default">{activeSubscriptions}</Badge>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span>Taxa de Conversão:</span>
-                    <Badge variant="secondary">78%</Badge>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span>Retenção de Clientes:</span>
-                    <Badge variant="outline">91%</Badge>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="shadow-lg border-0 bg-gradient-to-br from-white/80 to-gray-50/80 backdrop-blur-sm">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Activity className="h-5 w-5 text-red-600" />
-                    Atividade Recente
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span>Novos Cadastros (hoje):</span>
-                    <Badge variant="outline">12</Badge>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span>Logins Únicos (hoje):</span>
-                    <Badge variant="outline">247</Badge>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span>Suporte Pendente:</span>
-                    <Badge variant={overduePayments > 0 ? "destructive" : "outline"}>
-                      {overduePayments}
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
 
           <TabsContent value="financial">
             <FinancialDashboard />
@@ -529,10 +443,10 @@ export const MasterDashboard = () => {
           <TabsContent value="schools">
             <Card className="shadow-lg border-0 bg-white/60 backdrop-blur-sm">
               <CardHeader>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <CardTitle>Gerenciar Escolas</CardTitle>
                   <Button 
-                    className="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600"
+                    className="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 w-full sm:w-auto"
                     onClick={() => setIsSchoolDialogOpen(true)}
                   >
                     <Plus className="h-4 w-4" />
@@ -543,14 +457,14 @@ export const MasterDashboard = () => {
               <CardContent>
                 <div className="space-y-4">
                   {schools.map((school: any) => (
-                    <div key={school.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-all duration-200">
+                    <div key={school.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-all duration-200 gap-4">
                       <div className="flex items-center gap-4">
-                        <div className="p-2 bg-blue-100 rounded-lg">
+                        <div className="p-2 bg-blue-100 rounded-lg flex-shrink-0">
                           <Building className="h-5 w-5 text-blue-600" />
                         </div>
-                        <div>
+                        <div className="min-w-0">
                           <h3 className="font-semibold">{school.name}</h3>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-sm text-muted-foreground truncate">
                             {school.email || 'Sem email cadastrado'}
                           </p>
                           <p className="text-xs text-muted-foreground">
@@ -558,44 +472,48 @@ export const MasterDashboard = () => {
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant={school.is_active ? 'default' : 'secondary'}>
-                          {school.is_active ? 'Ativa' : 'Inativa'}
-                        </Badge>
-                        {subscriptions.find((s: any) => s.school_id === school.id) && (
-                          <Badge variant="outline">Com Assinatura</Badge>
-                        )}
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setEditingSchool(school)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="outline" size="sm">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Tem certeza que deseja excluir a escola "{school.name}"? Esta ação não pode ser desfeita.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => handleDeleteSchool(school.id)}
-                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                              >
-                                Excluir
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                        <div className="flex gap-2 flex-wrap">
+                          <Badge variant={school.is_active ? 'default' : 'secondary'}>
+                            {school.is_active ? 'Ativa' : 'Inativa'}
+                          </Badge>
+                          {subscriptions.find((s: any) => s.school_id === school.id) && (
+                            <Badge variant="outline">Com Assinatura</Badge>
+                          )}
+                        </div>
+                        <div className="flex gap-1">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setEditingSchool(school)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="outline" size="sm">
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Tem certeza que deseja excluir a escola "{school.name}"? Esta ação não pode ser desfeita.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => handleDeleteSchool(school.id)}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                >
+                                  Excluir
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -607,28 +525,28 @@ export const MasterDashboard = () => {
           <TabsContent value="users">
             <Card className="shadow-lg border-0 bg-white/60 backdrop-blur-sm">
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>Usuários Cadastrados</CardTitle>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <CardTitle>Administradores das Escolas</CardTitle>
                   <Button 
-                    className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+                    className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 w-full sm:w-auto"
                     onClick={() => setIsUserDialogOpen(true)}
                   >
                     <UserPlus className="h-4 w-4" />
-                    Novo Usuário
+                    Novo Admin Escola
                   </Button>
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   {profiles.map((profile: any) => (
-                    <div key={profile.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-all duration-200">
+                    <div key={profile.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-all duration-200 gap-4">
                       <div className="flex items-center gap-4">
-                        <div className="p-2 bg-green-100 rounded-lg">
+                        <div className="p-2 bg-green-100 rounded-lg flex-shrink-0">
                           <Users className="h-5 w-5 text-green-600" />
                         </div>
-                        <div>
+                        <div className="min-w-0">
                           <h3 className="font-semibold">{profile.name}</h3>
-                          <p className="text-sm text-muted-foreground">{profile.email}</p>
+                          <p className="text-sm text-muted-foreground truncate">{profile.email}</p>
                           {profile.user_schools && profile.user_schools.length > 0 && (
                             <p className="text-xs text-muted-foreground">
                               Escolas: {profile.user_schools.map((us: any) => us.schools.name).join(', ')}
@@ -636,49 +554,53 @@ export const MasterDashboard = () => {
                           )}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                         <Badge variant={getUserTypeBadgeVariant(profile.user_type)}>
                           {getUserTypeLabel(profile.user_type)}
                         </Badge>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleImpersonateUser(profile)}
-                          title="Entrar como este usuário"
-                        >
-                          <LogIn className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setEditingUser(profile)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="outline" size="sm">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Tem certeza que deseja excluir o usuário "{profile.name}"? Esta ação não pode ser desfeita.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => handleDeleteUser(profile.id)}
-                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                              >
-                                Excluir
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                        <div className="flex gap-1">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleImpersonateUser(profile)}
+                            title="Entrar como este usuário"
+                          >
+                            <LogIn className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setEditingUser(profile)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          {profile.user_type !== 'master' && (
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="outline" size="sm">
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Tem certeza que deseja excluir o usuário "{profile.name}"? Esta ação não pode ser desfeita.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => handleDeleteUser(profile.id)}
+                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                  >
+                                    Excluir
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -695,12 +617,12 @@ export const MasterDashboard = () => {
               <CardContent>
                 <div className="space-y-4">
                   {subscriptions.map((subscription: any) => (
-                    <div key={subscription.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-all duration-200">
+                    <div key={subscription.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-all duration-200 gap-4">
                       <div className="flex items-center gap-4">
-                        <div className="p-2 bg-purple-100 rounded-lg">
+                        <div className="p-2 bg-purple-100 rounded-lg flex-shrink-0">
                           <CreditCard className="h-5 w-5 text-purple-600" />
                         </div>
-                        <div>
+                        <div className="min-w-0">
                           <h3 className="font-semibold">{subscription.schools?.name}</h3>
                           <p className="text-sm text-muted-foreground">
                             Plano: {subscription.plan_name} - R$ {subscription.monthly_value}
@@ -710,41 +632,43 @@ export const MasterDashboard = () => {
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                         <Badge variant={subscription.status === 'active' ? 'default' : 'secondary'}>
                           {subscription.status === 'active' ? 'Ativa' : subscription.status}
                         </Badge>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setEditingSubscription(subscription)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="outline" size="sm">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Tem certeza que deseja excluir a assinatura da escola "{subscription.schools?.name}"? Esta ação não pode ser desfeita.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => handleDeleteSubscription(subscription.id)}
-                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                              >
-                                Excluir
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                        <div className="flex gap-1">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setEditingSubscription(subscription)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="outline" size="sm">
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Tem certeza que deseja excluir a assinatura da escola "{subscription.schools?.name}"? Esta ação não pode ser desfeita.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => handleDeleteSubscription(subscription.id)}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                >
+                                  Excluir
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -755,10 +679,6 @@ export const MasterDashboard = () => {
 
           <TabsContent value="messages">
             <MessagingSystem />
-          </TabsContent>
-
-          <TabsContent value="manage-users">
-            <UserManagement schools={schools} onUserCreated={fetchData} />
           </TabsContent>
         </Tabs>
 
@@ -780,10 +700,11 @@ export const MasterDashboard = () => {
         <Dialog open={isUserDialogOpen} onOpenChange={setIsUserDialogOpen}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Criar Novo Usuário</DialogTitle>
+              <DialogTitle>Criar Novo Administrador de Escola</DialogTitle>
             </DialogHeader>
             <EnhancedUserCreationForm 
               schools={schools}
+              restrictToSchoolAdmin={true}
               onUserCreated={() => {
                 setIsUserDialogOpen(false);
                 fetchData();
