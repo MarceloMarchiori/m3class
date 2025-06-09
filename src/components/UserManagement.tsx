@@ -9,6 +9,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Plus, UserPlus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import type { Database } from '@/integrations/supabase/types';
+
+type UserType = Database['public']['Enums']['user_type'];
+type SecretariaRole = Database['public']['Enums']['secretaria_role'];
 
 interface UserManagementProps {
   schools: any[];
@@ -24,8 +28,8 @@ export const UserManagement: React.FC<UserManagementProps> = ({ schools, onUserC
     name: '',
     email: '',
     password: '',
-    user_type: 'secretaria',
-    secretaria_role: 'secretaria_operacional',
+    user_type: 'secretaria' as UserType,
+    secretaria_role: 'secretaria_operacional' as SecretariaRole,
     school_id: ''
   });
 
@@ -49,7 +53,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({ schools, onUserC
 
       if (authError) throw authError;
 
-      // Criar o perfil do usuário
+      // Criar o perfil do usuário com tipos corretos
       const profileData = {
         id: authData.user.id,
         name: newUser.name,
@@ -61,7 +65,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({ schools, onUserC
 
       const { error: profileError } = await supabase
         .from('profiles')
-        .insert([profileData]);
+        .insert(profileData);
 
       if (profileError) throw profileError;
 
@@ -70,8 +74,8 @@ export const UserManagement: React.FC<UserManagementProps> = ({ schools, onUserC
         name: '',
         email: '',
         password: '',
-        user_type: 'secretaria',
-        secretaria_role: 'secretaria_operacional',
+        user_type: 'secretaria' as UserType,
+        secretaria_role: 'secretaria_operacional' as SecretariaRole,
         school_id: ''
       });
       
@@ -173,7 +177,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({ schools, onUserC
                   <Label htmlFor="user_type">Tipo de Usuário</Label>
                   <Select 
                     value={newUser.user_type} 
-                    onValueChange={(value) => setNewUser({ ...newUser, user_type: value })}
+                    onValueChange={(value: UserType) => setNewUser({ ...newUser, user_type: value })}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione o tipo" />
@@ -192,7 +196,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({ schools, onUserC
                     <Label htmlFor="secretaria_role">Função na Secretaria</Label>
                     <Select 
                       value={newUser.secretaria_role} 
-                      onValueChange={(value) => setNewUser({ ...newUser, secretaria_role: value })}
+                      onValueChange={(value: SecretariaRole) => setNewUser({ ...newUser, secretaria_role: value })}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione a função" />
