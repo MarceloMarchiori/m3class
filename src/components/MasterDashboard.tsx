@@ -22,7 +22,8 @@ import {
   Target,
   Award,
   Activity,
-  PieChart
+  PieChart,
+  Search
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -37,6 +38,7 @@ import { EnhancedUserCreationForm } from './EnhancedUserCreationForm';
 import { SchoolEditForm } from './SchoolEditForm';
 import { UserEditForm } from './UserEditForm';
 import { SubscriptionEditForm } from './SubscriptionEditForm';
+import { MasterUserImpersonation } from './MasterUserImpersonation';
 
 export const MasterDashboard = () => {
   const [schools, setSchools] = useState([]);
@@ -418,20 +420,20 @@ export const MasterDashboard = () => {
                 <span className="sm:hidden">Users</span>
               </TabsTrigger>
               <TabsTrigger 
+                value="access" 
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 rounded-lg p-2 sm:p-3 text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white"
+              >
+                <Search className="h-4 w-4" />
+                <span className="hidden sm:inline">Acesso Interno</span>
+                <span className="sm:hidden">Acesso</span>
+              </TabsTrigger>
+              <TabsTrigger 
                 value="subscriptions" 
                 className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 rounded-lg p-2 sm:p-3 text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white"
               >
                 <CreditCard className="h-4 w-4" />
                 <span className="hidden sm:inline">Assinaturas</span>
                 <span className="sm:hidden">Plans</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="messages" 
-                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 rounded-lg p-2 sm:p-3 text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white"
-              >
-                <MessageSquare className="h-4 w-4" />
-                <span className="hidden sm:inline">Comunicação</span>
-                <span className="sm:hidden">Chat</span>
               </TabsTrigger>
             </div>
           </TabsList>
@@ -609,6 +611,10 @@ export const MasterDashboard = () => {
             </Card>
           </TabsContent>
 
+          <TabsContent value="access">
+            <MasterUserImpersonation />
+          </TabsContent>
+
           <TabsContent value="subscriptions">
             <Card className="shadow-lg border-0 bg-white/60 backdrop-blur-sm">
               <CardHeader>
@@ -675,10 +681,6 @@ export const MasterDashboard = () => {
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
-
-          <TabsContent value="messages">
-            <MessagingSystem />
           </TabsContent>
         </Tabs>
 

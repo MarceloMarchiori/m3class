@@ -1,212 +1,324 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { User, BookOpen, Calendar, TrendingUp, MessageSquare, FileText, Clock } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { 
+  Users, 
+  Calendar, 
+  TrendingUp,
+  MessageSquare,
+  Bell,
+  BookOpen,
+  GraduationCap,
+  Award,
+  AlertTriangle,
+  CheckCircle
+} from 'lucide-react';
+import { NotificationSystem } from '../NotificationSystem';
 
-interface ParentDashboardProps {
-  demoUser: {
-    name: string;
-    email: string;
-    userType: string;
+export const ParentDashboard = () => {
+  const [selectedChild, setSelectedChild] = useState('all');
+
+  const metrics = [
+    {
+      title: "Filhos Cadastrados",
+      value: "2",
+      change: "João e Maria",
+      trend: "neutral",
+      icon: <Users className="h-5 w-5 text-blue-600" />,
+      color: "bg-blue-100"
+    },
+    {
+      title: "Frequência Média",
+      value: "94%",
+      change: "+2% este mês",
+      trend: "up",
+      icon: <Calendar className="h-5 w-5 text-green-600" />,
+      color: "bg-green-100"
+    },
+    {
+      title: "Média Geral",
+      value: "8.5",
+      change: "Bom desempenho",
+      trend: "up",
+      icon: <Award className="h-5 w-5 text-purple-600" />,
+      color: "bg-purple-100"
+    },
+    {
+      title: "Notificações",
+      value: "3",
+      change: "1 nova hoje",
+      trend: "neutral",
+      icon: <Bell className="h-5 w-5 text-orange-600" />,
+      color: "bg-orange-100"
+    }
+  ];
+
+  const children = [
+    {
+      id: 1,
+      name: "João Silva",
+      class: "8º A",
+      school: "Escola Municipal Centro",
+      attendance: 96,
+      average: 8.7,
+      status: "excellent"
+    },
+    {
+      id: 2,
+      name: "Maria Silva",
+      class: "6º B", 
+      school: "Escola Municipal Centro",
+      attendance: 92,
+      average: 8.3,
+      status: "good"
+    }
+  ];
+
+  const recentEvents = [
+    { id: 1, type: "absence", child: "João Silva", event: "Falta registrada", date: "Hoje, 14:30", severity: "warning" },
+    { id: 2, type: "grade", child: "Maria Silva", event: "Nova nota: Matemática (9.0)", date: "Ontem, 16:20", severity: "success" },
+    { id: 3, type: "message", child: "João Silva", event: "Recado da professora", date: "Ontem, 09:15", severity: "info" },
+    { id: 4, type: "attendance", child: "Maria Silva", event: "100% de presença esta semana", date: "2 dias atrás", severity: "success" },
+  ];
+
+  const upcomingEvents = [
+    { id: 1, title: "Reunião de Pais - 8º A", date: "15/12/2024", time: "19:00", type: "meeting" },
+    { id: 2, title: "Prova de Matemática - João", date: "18/12/2024", time: "08:00", type: "exam" },
+    { id: 3, title: "Feira de Ciências", date: "20/12/2024", time: "14:00", type: "event" },
+    { id: 4, title: "Entrega de Boletins", date: "22/12/2024", time: "18:00", type: "meeting" },
+  ];
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'excellent': return 'bg-green-100 text-green-800';
+      case 'good': return 'bg-blue-100 text-blue-800';
+      case 'attention': return 'bg-yellow-100 text-yellow-800';
+      case 'concern': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
   };
-}
 
-export const ParentDashboard: React.FC<ParentDashboardProps> = ({ demoUser }) => {
-  const childInfo = {
-    name: 'Pedro Silva',
-    class: '5º Ano A',
-    currentGrade: 8.7,
-    attendance: 95.8,
-    nextClass: 'Matemática - 08:00'
+  const getEventIcon = (type: string) => {
+    switch (type) {
+      case 'absence': return <AlertTriangle className="h-4 w-4 text-orange-500" />;
+      case 'grade': return <Award className="h-4 w-4 text-green-500" />;
+      case 'message': return <MessageSquare className="h-4 w-4 text-blue-500" />;
+      case 'attendance': return <CheckCircle className="h-4 w-4 text-green-500" />;
+      default: return <Bell className="h-4 w-4 text-gray-500" />;
+    }
   };
 
-  const recentGrades = [
-    { subject: 'Matemática', grade: 9.0, date: '05/06', type: 'Prova' },
-    { subject: 'Português', grade: 8.5, date: '03/06', type: 'Redação' },
-    { subject: 'História', grade: 8.8, date: '01/06', type: 'Trabalho' },
-    { subject: 'Ciências', grade: 9.2, date: '30/05', type: 'Experimento' }
-  ];
-
-  const schoolCommunications = [
-    { title: 'Reunião de Pais - 5º Ano', date: '15/06', time: '19:00', type: 'Reunião' },
-    { title: 'Feira de Ciências', date: '20/06', time: '14:00', type: 'Evento' },
-    { title: 'Entrega de Boletins', date: '25/06', time: '18:00', type: 'Administrativo' },
-    { title: 'Festa Junina', date: '29/06', time: '18:30', type: 'Evento' }
-  ];
-
-  const weekSchedule = [
-    { day: 'Segunda', subjects: ['Matemática', 'Português', 'História', 'Ed. Física'] },
-    { day: 'Terça', subjects: ['Ciências', 'Geografia', 'Matemática', 'Inglês'] },
-    { day: 'Quarta', subjects: ['Português', 'História', 'Artes', 'Ciências'] },
-    { day: 'Quinta', subjects: ['Matemática', 'Geografia', 'Português', 'Ed. Física'] },
-    { day: 'Sexta', subjects: ['Ciências', 'Inglês', 'História', 'Matemática'] }
-  ];
+  const getEventTypeIcon = (type: string) => {
+    switch (type) {
+      case 'meeting': return <Users className="h-4 w-4 text-purple-500" />;
+      case 'exam': return <BookOpen className="h-4 w-4 text-red-500" />;
+      case 'event': return <Calendar className="h-4 w-4 text-blue-500" />;
+      default: return <Calendar className="h-4 w-4 text-gray-500" />;
+    }
+  };
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-blue-100 rounded-full">
-              <User className="h-8 w-8 text-blue-600" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold">Olá, {demoUser.name}</h2>
-              <p className="text-muted-foreground">Acompanhe o progresso de {childInfo.name}</p>
-              <p className="text-sm text-blue-600">{childInfo.class} - Próxima aula: {childInfo.nextClass}</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Média Atual</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{childInfo.currentGrade}</div>
-            <p className="text-xs text-green-600">Excelente desempenho!</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Frequência</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{childInfo.attendance}%</div>
-            <p className="text-xs text-green-600">Muito boa!</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Turma</CardTitle>
-            <BookOpen className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{childInfo.class}</div>
-            <p className="text-xs text-muted-foreground">Ensino Fundamental</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Comunicados</CardTitle>
-            <MessageSquare className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{schoolCommunications.length}</div>
-            <p className="text-xs text-orange-600">Não lidos</p>
-          </CardContent>
-        </Card>
+      {/* Metrics Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {metrics.map((metric, index) => (
+          <Card key={index} className="border-0 shadow-md bg-white/80 backdrop-blur-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4">
+                <div className={`p-3 rounded-lg ${metric.color}`}>
+                  {metric.icon}
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm text-muted-foreground">{metric.title}</p>
+                  <p className="text-2xl font-bold">{metric.value}</p>
+                  <p className="text-xs text-muted-foreground">{metric.change}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BookOpen className="h-5 w-5" />
-              Notas Recentes de {childInfo.name}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {recentGrades.map((grade, index) => (
-                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div>
-                    <p className="font-medium">{grade.subject}</p>
-                    <p className="text-sm text-muted-foreground">{grade.type} - {grade.date}</p>
-                  </div>
-                  <Badge variant={grade.grade >= 9 ? 'default' : grade.grade >= 7 ? 'secondary' : 'destructive'}>
-                    {grade.grade}
-                  </Badge>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+      <Tabs defaultValue="overview" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-white/60 backdrop-blur-sm">
+          <TabsTrigger value="overview" className="flex items-center gap-2">
+            <TrendingUp className="h-4 w-4" />
+            <span className="hidden sm:inline">Visão Geral</span>
+            <span className="sm:hidden">Geral</span>
+          </TabsTrigger>
+          <TabsTrigger value="children" className="flex items-center gap-2">
+            <GraduationCap className="h-4 w-4" />
+            <span className="hidden sm:inline">Filhos</span>
+            <span className="sm:hidden">Filhos</span>
+          </TabsTrigger>
+          <TabsTrigger value="notifications" className="flex items-center gap-2">
+            <Bell className="h-4 w-4" />
+            <span className="hidden sm:inline">Notificações</span>
+            <span className="sm:hidden">Notif</span>
+          </TabsTrigger>
+          <TabsTrigger value="events" className="flex items-center gap-2">
+            <Calendar className="h-4 w-4" />
+            <span className="hidden sm:inline">Eventos</span>
+            <span className="sm:hidden">Eventos</span>
+          </TabsTrigger>
+        </TabsList>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MessageSquare className="h-5 w-5" />
-              Comunicados da Escola
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {schoolCommunications.map((comm, index) => (
-                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div>
-                    <p className="font-medium">{comm.title}</p>
-                    <p className="text-sm text-muted-foreground">{comm.date} às {comm.time}</p>
-                  </div>
-                  <Badge variant="outline">
-                    {comm.type}
-                  </Badge>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Calendar className="h-5 w-5" />
-            Horário Semanal de {childInfo.name}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            {weekSchedule.map((day, index) => (
-              <div key={index} className="space-y-2">
-                <h4 className="font-medium text-center">{day.day}</h4>
-                <div className="space-y-1">
-                  {day.subjects.map((subject, subIndex) => (
-                    <div key={subIndex} className="p-2 bg-muted/50 rounded text-center text-sm">
-                      {subject}
+        <TabsContent value="overview">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Recent Activity */}
+            <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Bell className="h-5 w-5" />
+                  Atividade Recente
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {recentEvents.map((event) => (
+                    <div key={event.id} className="flex items-start gap-3 p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+                      {getEventIcon(event.type)}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm">{event.event}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {event.child} • {event.date}
+                        </p>
+                      </div>
                     </div>
                   ))}
                 </div>
-              </div>
+              </CardContent>
+            </Card>
+
+            {/* Upcoming Events */}
+            <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Calendar className="h-5 w-5" />
+                  Próximos Eventos
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {upcomingEvents.map((event) => (
+                    <div key={event.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+                      <div className="flex items-center gap-3">
+                        {getEventTypeIcon(event.type)}
+                        <div>
+                          <p className="font-medium text-sm">{event.title}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {event.date} às {event.time}
+                          </p>
+                        </div>
+                      </div>
+                      <Button size="sm" variant="outline">
+                        Ver
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="children">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {children.map((child) => (
+              <Card key={child.id} className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <GraduationCap className="h-5 w-5" />
+                    {child.name}
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    {child.class} - {child.school}
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Frequência:</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-20 h-2 bg-gray-200 rounded-full">
+                          <div 
+                            className="h-2 bg-green-500 rounded-full" 
+                            style={{ width: `${child.attendance}%` }}
+                          ></div>
+                        </div>
+                        <span className="text-sm font-medium">{child.attendance}%</span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Média Geral:</span>
+                      <span className="text-lg font-bold text-blue-600">{child.average}</span>
+                    </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Status:</span>
+                      <Badge className={getStatusColor(child.status)}>
+                        {child.status === 'excellent' ? 'Excelente' : 
+                         child.status === 'good' ? 'Bom' : 
+                         child.status === 'attention' ? 'Atenção' : 'Preocupante'}
+                      </Badge>
+                    </div>
+                    
+                    <Button className="w-full mt-4" variant="outline">
+                      Ver Detalhes
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
-        </CardContent>
-      </Card>
+        </TabsContent>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Ações Rápidas</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Button className="h-20 flex flex-col gap-2">
-              <BookOpen className="h-6 w-6" />
-              <span className="text-sm">Boletim</span>
-            </Button>
-            <Button variant="outline" className="h-20 flex flex-col gap-2">
-              <Calendar className="h-6 w-6" />
-              <span className="text-sm">Frequência</span>
-            </Button>
-            <Button variant="outline" className="h-20 flex flex-col gap-2">
-              <MessageSquare className="h-6 w-6" />
-              <span className="text-sm">Mensagens</span>
-            </Button>
-            <Button variant="outline" className="h-20 flex flex-col gap-2">
-              <FileText className="h-6 w-6" />
-              <span className="text-sm">Declarações</span>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+        <TabsContent value="notifications">
+          <NotificationSystem />
+        </TabsContent>
+
+        <TabsContent value="events">
+          <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle>Calendário de Eventos</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {upcomingEvents.map((event) => (
+                  <div key={event.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors gap-4">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 bg-blue-100 rounded-lg">
+                        {getEventTypeIcon(event.type)}
+                      </div>
+                      <div>
+                        <h3 className="font-semibold">{event.title}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {event.date} às {event.time}
+                        </p>
+                        <p className="text-xs text-muted-foreground capitalize">
+                          Tipo: {event.type === 'meeting' ? 'Reunião' : 
+                                 event.type === 'exam' ? 'Prova' : 'Evento'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline">
+                        Lembrete
+                      </Button>
+                      <Button size="sm">
+                        Detalhes
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
