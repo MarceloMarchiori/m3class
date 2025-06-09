@@ -27,16 +27,20 @@ import {
   UserCheck,
   Settings,
   Building,
-  GraduationCap
+  GraduationCap,
+  User
 } from "lucide-react";
 import { SchoolDepartments } from "@/components/SchoolDepartments";
 import { CalendarManager } from "@/components/CalendarManager";
 import { EnrollmentSystem } from "@/components/EnrollmentSystem";
+import { StaffManagement } from "@/components/StaffManagement";
+import { TeacherManagement } from "@/components/TeacherManagement";
 
 interface UserProfile {
   id: string;
   name: string;
   role: "professor" | "aluno" | "responsavel" | "secretaria";
+  subRole?: "diretor" | "secretario_educacao" | "secretaria_operacional";
   avatar?: string;
 }
 
@@ -341,86 +345,156 @@ const Index = () => {
     </div>
   );
 
-  const renderSecretariaDashboard = () => (
-    <div className="space-y-6">
-      {/* Cards de Estatísticas da Secretaria */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <DashboardCard
-          title="Total de Alunos"
-          value="485"
-          icon={Users}
-          subtitle="Toda a escola"
-          className="gradient-card"
-        />
-        <DashboardCard
-          title="Professores Ativos"
-          value="28"
-          icon={GraduationCap}
-          subtitle="18 turmas"
-          className="gradient-card"
-        />
-        <DashboardCard
-          title="Média Escolar"
-          value="8.1"
-          icon={BarChart3}
-          trend={{ value: 0.3, isPositive: true }}
-          className="gradient-card"
-        />
-        <DashboardCard
-          title="Taxa de Aprovação"
-          value="91.5%"
-          icon={Trophy}
-          subtitle="Acima da meta"
-          className="gradient-card"
-        />
+  const renderSecretariaDashboard = () => {
+    const hasHierarchyAccess = (requiredLevel: string) => {
+      if (!currentUser.subRole) return false;
+      
+      const hierarchy = {
+        diretor: 3,
+        secretario_educacao: 2,
+        secretaria_operacional: 1
+      };
+      
+      const userLevel = hierarchy[currentUser.subRole as keyof typeof hierarchy] || 0;
+      const requiredLevelValue = hierarchy[requiredLevel as keyof typeof hierarchy] || 0;
+      
+      return userLevel >= requiredLevelValue;
+    };
+
+    const getDashboardTitle = () => {
+      switch (currentUser.subRole) {
+        case "diretor":
+          return "Dashboard Executivo - Diretor";
+        case "secretario_educacao":
+          return "Dashboard Pedagógico - Secretário de Educação";
+        case "secretaria_operacional":
+          return "Dashboard Operacional - Secretária";
+        default:
+          return "Dashboard da Secretaria";
+      }
+    };
+
+    return (
+      <div className="space-y-6">
+        {/* Header personalizado por hierarquia */}
+        <Card className="gradient-card">
+          <CardContent className="p-6">
+            <h2 className="text-2xl font-bold mb-2">{getDashboardTitle()}</h2>
+            <p className="text-muted-foreground">
+              {currentUser.subRole === "diretor" && "Visão estratégica e executiva da instituição"}
+              {currentUser.subRole === "secretario_educacao" && "Gestão pedagógica e acadêmica"}
+              {currentUser.subRole === "secretaria_operacional" && "Operações do dia a dia e atendimento"}
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Cards de Estatísticas da Secretaria */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <DashboardCard
+            title="Total de Alunos"
+            value="485"
+            icon={Users}
+            subtitle="Toda a escola"
+            className="gradient-card"
+          />
+          <DashboardCard
+            title="Professores Ativos"
+            value="28"
+            icon={GraduationCap}
+            subtitle="18 turmas"
+            className="gradient-card"
+          />
+          {hasHierarchyAccess("secretario_educacao") && (
+            <DashboardCard
+              title="Média Escolar"
+              value="8.1"
+              icon={BarChart3}
+              trend={{ value: 0.3, isPositive: true }}
+              className="gradient-card"
+            />
+          )}
+          {hasHierarchyAccess("diretor") && (
+            <DashboardCard
+              title="Taxa de Aprovação"
+              value="91.5%"
+              icon={Trophy}
+              subtitle="Acima da meta"
+              className="gradient-card"
+            />
+          )}
+        </div>
+
+        <Tabs defaultValue="alunos" className="space-y-6">
+          <TabsList className={`grid w-full ${hasHierarchyAccess("diretor") ? "grid-cols-6" : "grid-cols-5"}`}>
+            <TabsTrigger value="alunos" className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              Gestão de Alunos
+            </TabsTrigger>
+            <TabsTrigger value="funcionarios" className="flex items-center gap-2">
+              <User className="h-4 w-4" />
+              Funcionários
+            </TabsTrigger>
+            <TabsTrigger value="professores" className="flex items-center gap-2">
+              <GraduationCap className="h-4 w-4" />
+              Professores
+            </TabsTrigger>
+            <TabsTrigger value="matriculas" className="flex items-center gap-2">
+              <GraduationCap className="h-4 w-4" />
+              Matrículas
+            </TabsTrigger>
+            {hasHierarchyAccess("secretario_educacao") && (
+              <TabsTrigger value="relatorios" className="flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                Relatórios
+              </TabsTrigger>
+            )}
+            <TabsTrigger value="calendario" className="flex items-center gap-2">
+              <CalendarIcon className="h-4 w-4" />
+              Calendário
+            </TabsTrigger>
+            {hasHierarchyAccess("diretor") && (
+              <TabsTrigger value="configuracoes" className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                Configurações
+              </TabsTrigger>
+            )}
+          </TabsList>
+
+          <TabsContent value="alunos">
+            <StudentManagement />
+          </TabsContent>
+
+          <TabsContent value="funcionarios">
+            <StaffManagement />
+          </TabsContent>
+
+          <TabsContent value="professores">
+            <TeacherManagement />
+          </TabsContent>
+
+          <TabsContent value="matriculas">
+            <EnrollmentSystem />
+          </TabsContent>
+
+          {hasHierarchyAccess("secretario_educacao") && (
+            <TabsContent value="relatorios">
+              <SchoolReports />
+            </TabsContent>
+          )}
+
+          <TabsContent value="calendario">
+            <CalendarManager />
+          </TabsContent>
+
+          {hasHierarchyAccess("diretor") && (
+            <TabsContent value="configuracoes">
+              <SchoolDepartments />
+            </TabsContent>
+          )}
+        </Tabs>
       </div>
-
-      <Tabs defaultValue="alunos" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="alunos" className="flex items-center gap-2">
-            <Users className="h-4 w-4" />
-            Gestão de Alunos
-          </TabsTrigger>
-          <TabsTrigger value="matriculas" className="flex items-center gap-2">
-            <GraduationCap className="h-4 w-4" />
-            Matrículas
-          </TabsTrigger>
-          <TabsTrigger value="relatorios" className="flex items-center gap-2">
-            <FileText className="h-4 w-4" />
-            Relatórios
-          </TabsTrigger>
-          <TabsTrigger value="calendario" className="flex items-center gap-2">
-            <CalendarIcon className="h-4 w-4" />
-            Calendário Escolar
-          </TabsTrigger>
-          <TabsTrigger value="configuracoes" className="flex items-center gap-2">
-            <Settings className="h-4 w-4" />
-            Configurações
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="alunos">
-          <StudentManagement />
-        </TabsContent>
-
-        <TabsContent value="matriculas">
-          <EnrollmentSystem />
-        </TabsContent>
-
-        <TabsContent value="relatorios">
-          <SchoolReports />
-        </TabsContent>
-
-        <TabsContent value="calendario">
-          <CalendarManager />
-        </TabsContent>
-
-        <TabsContent value="configuracoes">
-          <SchoolDepartments />
-        </TabsContent>
-      </Tabs>
-    </div>
-  );
+    );
+  };
 
   const renderDashboard = () => {
     switch (currentUser.role) {
