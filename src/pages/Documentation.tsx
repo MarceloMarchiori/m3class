@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -406,7 +405,7 @@ const Documentation = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div className="text-center">
                   <div className="p-3 bg-blue-100 rounded-full w-fit mx-auto mb-3">
-                    <Clock className="h-6 w-6 text-blue-600" />
+                    <Calendar className="h-6 w-6 text-blue-600" />
                   </div>
                   <h4 className="font-semibold mb-2">Economia de Tempo</h4>
                   <p className="text-sm text-muted-foreground">
