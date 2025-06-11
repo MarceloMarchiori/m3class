@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -83,17 +82,17 @@ const Teste = () => {
     student: {
       name: 'João Santos',
       email: 'joao.santos@email.com',
-      userType: 'aluno'
+      user_type: 'aluno'
     },
     secretary: {
       name: 'Ana Costa',
       email: 'ana.costa@escola.com',
-      userType: 'secretaria'
+      user_type: 'secretaria'
     },
     director: {
       name: 'Carlos Diretor',
       email: 'carlos@escola.com',
-      userType: 'school_admin'
+      user_type: 'school_admin'
     },
     parent: {
       id: '5',
