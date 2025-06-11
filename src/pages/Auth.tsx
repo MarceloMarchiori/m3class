@@ -1,73 +1,37 @@
 
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { GraduationCap, Download } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { LogIn, UserPlus, GraduationCap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [showInstallButton, setShowInstallButton] = useState(false);
-  
-  const { signIn, user, profile } = useAuth();
+  const [activeTab, setActiveTab] = useState('signin');
+  const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Detectar se PWA pode ser instalado
-  useEffect(() => {
-    const handleBeforeInstallPrompt = (e: any) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-      setShowInstallButton(true);
-    };
-
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-
-    // Verificar se já está instalado
-    if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) {
-      setShowInstallButton(false);
-    }
-
-    return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    };
-  }, []);
-
-  // Redirecionar se já logado
-  useEffect(() => {
-    if (user && profile) {
-      if (profile.user_type === 'master') {
-        navigate('/master');
-      } else {
-        navigate('/dashboard');
-      }
-    }
-  }, [user, profile, navigate]);
-
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
+    
     try {
-      const { error } = await signIn(email, password);
-      if (error) {
-        toast({
-          title: "Erro no login",
-          description: error.message || "Credenciais inválidas",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
+      await signIn(email, password);
+      navigate('/dashboard');
+    } catch (error: any) {
       toast({
         title: "Erro no login",
-        description: "Ocorreu um erro inesperado",
+        description: error.message || "Erro ao fazer login",
         variant: "destructive",
       });
     } finally {
@@ -75,114 +39,145 @@ const Auth = () => {
     }
   };
 
-  const handleInstallPWA = async () => {
-    if (!deferredPrompt) return;
-
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
     
-    if (outcome === 'accepted') {
+    try {
+      await signUp(email, password, name);
       toast({
-        title: "App instalado!",
-        description: "O EduDiário foi instalado em seu dispositivo",
+        title: "Conta criada com sucesso!",
+        description: "Verifique seu email para confirmar a conta.",
       });
+    } catch (error: any) {
+      toast({
+        title: "Erro no cadastro",
+        description: error.message || "Erro ao criar conta",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
-    
-    setDeferredPrompt(null);
-    setShowInstallButton(false);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-6">
-        {/* Logo e Título */}
-        <div className="text-center space-y-4">
-          <div className="flex justify-center">
-            <div className="p-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl">
-              <GraduationCap className="h-12 w-12 text-white" />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center mb-4">
+            <div className="bg-blue-600 p-3 rounded-full">
+              <GraduationCap className="h-8 w-8 text-white" />
             </div>
           </div>
-          <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              EduDiário
-            </h1>
-            <p className="text-gray-600 mt-2">Sistema de Gestão Escolar</p>
-          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">M3Class</h1>
+          <p className="text-gray-600">Sistema de Gestão Escolar</p>
         </div>
 
-        {/* Formulário de Login */}
-        <Card className="shadow-xl border-0">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">Fazer Login</CardTitle>
+        <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl">Bem-vindo</CardTitle>
+            <CardDescription>
+              Acesse sua conta para continuar
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="seu@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="h-11"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Senha</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="h-11"
-                />
-              </div>
-              <Button
-                type="submit"
-                className="w-full h-11 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
-                disabled={loading}
-              >
-                {loading ? "Entrando..." : "Entrar"}
-              </Button>
-            </form>
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="signin" className="flex items-center gap-2">
+                  <LogIn className="h-4 w-4" />
+                  Entrar
+                </TabsTrigger>
+                <TabsTrigger value="signup" className="flex items-center gap-2">
+                  <UserPlus className="h-4 w-4" />
+                  Cadastrar
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="signin">
+                <form onSubmit={handleSignIn} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="seu@email.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Senha</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="Digite sua senha"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? "Entrando..." : "Entrar"}
+                  </Button>
+                </form>
+              </TabsContent>
+              
+              <TabsContent value="signup">
+                <form onSubmit={handleSignUp} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Nome Completo</Label>
+                    <Input
+                      id="name"
+                      type="text"
+                      placeholder="Seu nome completo"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-email">Email</Label>
+                    <Input
+                      id="signup-email"
+                      type="email"
+                      placeholder="seu@email.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-password">Senha</Label>
+                    <Input
+                      id="signup-password"
+                      type="password"
+                      placeholder="Mínimo 6 caracteres"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      minLength={6}
+                    />
+                  </div>
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? "Criando conta..." : "Criar conta"}
+                  </Button>
+                </form>
+              </TabsContent>
+            </Tabs>
+
+            <div className="mt-6 text-center">
+              <Alert>
+                <AlertDescription className="text-sm">
+                  Acesso restrito a usuários autorizados
+                </AlertDescription>
+              </Alert>
+            </div>
           </CardContent>
         </Card>
 
-        {/* Botão de Instalação PWA */}
-        {showInstallButton && (
-          <Card className="shadow-lg border-green-200 bg-green-50">
-            <CardContent className="pt-6">
-              <div className="text-center space-y-3">
-                <div className="flex justify-center">
-                  <Download className="h-8 w-8 text-green-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-green-800">Instalar EduDiário</h3>
-                  <p className="text-sm text-green-700 mt-1">
-                    Adicione o app à sua tela inicial para acesso rápido
-                  </p>
-                </div>
-                <Button
-                  onClick={handleInstallPWA}
-                  variant="outline"
-                  className="w-full border-green-300 text-green-700 hover:bg-green-100"
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Instalar App
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Rodapé */}
-        <div className="text-center text-sm text-gray-500">
-          <p>Acesso restrito a usuários autorizados</p>
-          <p className="mt-1">© 2024 EduDiário - Gestão Escolar</p>
+        <div className="text-center mt-8 text-sm text-gray-500">
+          © 2025 M3Class - Gestão Escolar
         </div>
       </div>
     </div>

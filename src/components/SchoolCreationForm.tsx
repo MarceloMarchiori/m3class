@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,7 +24,8 @@ export const SchoolCreationForm = ({ onSchoolCreated, onCancel }: SchoolCreation
     address: '',
     city: '',
     state: '',
-    zip_code: ''
+    zip_code: '',
+    school_type: 'tradicional' as 'tradicional' | 'creche'
   });
 
   const [adminData, setAdminData] = useState({
@@ -88,7 +88,7 @@ export const SchoolCreationForm = ({ onSchoolCreated, onCancel }: SchoolCreation
 
       toast({
         title: "Escola criada com sucesso!",
-        description: `A escola "${school.name}" e o usuário admin foram criados`,
+        description: `A escola "${school.name}" (${school.school_type}) e o usuário admin foram criados`,
       });
 
       onSchoolCreated();
@@ -128,6 +128,26 @@ export const SchoolCreationForm = ({ onSchoolCreated, onCancel }: SchoolCreation
               </div>
               
               <div className="space-y-2">
+                <Label htmlFor="school-type">Tipo de Escola *</Label>
+                <Select
+                  value={schoolData.school_type}
+                  onValueChange={(value: 'tradicional' | 'creche') => 
+                    setSchoolData({ ...schoolData, school_type: value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="tradicional">Escola Tradicional</SelectItem>
+                    <SelectItem value="creche">Creche</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
                 <Label htmlFor="school-email">Email da Escola</Label>
                 <Input
                   id="school-email"
@@ -137,9 +157,7 @@ export const SchoolCreationForm = ({ onSchoolCreated, onCancel }: SchoolCreation
                   placeholder="contato@escola.com"
                 />
               </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              
               <div className="space-y-2">
                 <Label htmlFor="school-phone">Telefone</Label>
                 <Input
@@ -147,16 +165,6 @@ export const SchoolCreationForm = ({ onSchoolCreated, onCancel }: SchoolCreation
                   value={schoolData.phone}
                   onChange={(e) => setSchoolData({ ...schoolData, phone: e.target.value })}
                   placeholder="(11) 99999-9999"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="school-address">Endereço</Label>
-                <Input
-                  id="school-address"
-                  value={schoolData.address}
-                  onChange={(e) => setSchoolData({ ...schoolData, address: e.target.value })}
-                  placeholder="Rua, número"
                 />
               </div>
             </div>

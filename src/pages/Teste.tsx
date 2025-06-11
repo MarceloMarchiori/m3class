@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -66,32 +67,44 @@ const Teste = () => {
     navigate('/master');
   };
 
-  // Mock user data for demonstration - Updated with correct prop structure
+  // Mock user data for demonstration
   const mockUsers = {
     teacher: {
+      id: '1',
       name: 'Prof. Maria Silva',
       email: 'maria.silva@escola.com',
-      user_type: 'professor'
+      user_type: 'professor',
+      avatar_url: null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      school_id: 'escola1',
+      secretaria_role: null
     },
     student: {
       name: 'João Santos',
       email: 'joao.santos@email.com',
-      user_type: 'aluno'
+      userType: 'aluno'
     },
     secretary: {
       name: 'Ana Costa',
       email: 'ana.costa@escola.com',
-      user_type: 'secretaria'
+      userType: 'secretaria'
     },
     director: {
       name: 'Carlos Diretor',
       email: 'carlos@escola.com',
-      user_type: 'school_admin'
+      userType: 'school_admin'
     },
     parent: {
+      id: '5',
       name: 'Fernanda Responsável',
       email: 'fernanda@email.com',
-      user_type: 'responsavel'
+      user_type: 'responsavel',
+      avatar_url: null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      school_id: 'escola1',
+      secretaria_role: null
     }
   };
 
@@ -140,7 +153,7 @@ const Teste = () => {
                 Início
               </Button>
               <div>
-                <h1 className="text-xl sm:text-2xl font-bold">Dashboard Demo - EduDiário</h1>
+                <h1 className="text-xl sm:text-2xl font-bold">Dashboard Demo - M3Class</h1>
                 <p className="text-xs sm:text-sm text-muted-foreground">
                   {isImpersonating && impersonatedUser 
                     ? `Acessando como: ${impersonatedUser.name}`

@@ -9,6 +9,354 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      canteen_inventory: {
+        Row: {
+          category: string | null
+          cost_per_unit: number | null
+          created_at: string | null
+          expiry_date: string | null
+          id: string
+          item_name: string
+          min_quantity: number | null
+          quantity: number | null
+          school_id: string | null
+          supplier_contact: string | null
+          supplier_name: string | null
+          unit: string | null
+        }
+        Insert: {
+          category?: string | null
+          cost_per_unit?: number | null
+          created_at?: string | null
+          expiry_date?: string | null
+          id?: string
+          item_name: string
+          min_quantity?: number | null
+          quantity?: number | null
+          school_id?: string | null
+          supplier_contact?: string | null
+          supplier_name?: string | null
+          unit?: string | null
+        }
+        Update: {
+          category?: string | null
+          cost_per_unit?: number | null
+          created_at?: string | null
+          expiry_date?: string | null
+          id?: string
+          item_name?: string
+          min_quantity?: number | null
+          quantity?: number | null
+          school_id?: string | null
+          supplier_contact?: string | null
+          supplier_name?: string | null
+          unit?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "canteen_inventory_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      canteen_menu: {
+        Row: {
+          created_at: string | null
+          day_of_week: number | null
+          id: string
+          items: Json | null
+          meal_type: string | null
+          school_id: string | null
+          week_start_date: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          day_of_week?: number | null
+          id?: string
+          items?: Json | null
+          meal_type?: string | null
+          school_id?: string | null
+          week_start_date?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          day_of_week?: number | null
+          id?: string
+          items?: Json | null
+          meal_type?: string | null
+          school_id?: string | null
+          week_start_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "canteen_menu_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      canteen_sales: {
+        Row: {
+          created_at: string | null
+          id: string
+          item_name: string
+          quantity: number | null
+          sale_date: string | null
+          school_id: string | null
+          student_id: string | null
+          total_amount: number | null
+          unit_price: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          item_name: string
+          quantity?: number | null
+          sale_date?: string | null
+          school_id?: string | null
+          student_id?: string | null
+          total_amount?: number | null
+          unit_price?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          item_name?: string
+          quantity?: number | null
+          sale_date?: string | null
+          school_id?: string | null
+          student_id?: string | null
+          total_amount?: number | null
+          unit_price?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "canteen_sales_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      daycare_grades: {
+        Row: {
+          age_range: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          age_range?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          age_range?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      fleet_fuel_records: {
+        Row: {
+          cost: number | null
+          created_at: string | null
+          fuel_amount: number | null
+          fuel_date: string | null
+          gas_station: string | null
+          id: string
+          odometer_reading: number | null
+          vehicle_id: string | null
+        }
+        Insert: {
+          cost?: number | null
+          created_at?: string | null
+          fuel_amount?: number | null
+          fuel_date?: string | null
+          gas_station?: string | null
+          id?: string
+          odometer_reading?: number | null
+          vehicle_id?: string | null
+        }
+        Update: {
+          cost?: number | null
+          created_at?: string | null
+          fuel_amount?: number | null
+          fuel_date?: string | null
+          gas_station?: string | null
+          id?: string
+          odometer_reading?: number | null
+          vehicle_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fleet_fuel_records_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "fleet_vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fleet_maintenance: {
+        Row: {
+          cost: number | null
+          created_at: string | null
+          description: string | null
+          id: string
+          maintenance_date: string | null
+          maintenance_type: string | null
+          next_maintenance_date: string | null
+          service_provider: string | null
+          vehicle_id: string | null
+        }
+        Insert: {
+          cost?: number | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          maintenance_date?: string | null
+          maintenance_type?: string | null
+          next_maintenance_date?: string | null
+          service_provider?: string | null
+          vehicle_id?: string | null
+        }
+        Update: {
+          cost?: number | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          maintenance_date?: string | null
+          maintenance_type?: string | null
+          next_maintenance_date?: string | null
+          service_provider?: string | null
+          vehicle_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fleet_maintenance_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "fleet_vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fleet_routes: {
+        Row: {
+          created_at: string | null
+          end_time: string | null
+          id: string
+          is_active: boolean | null
+          route_name: string
+          school_id: string | null
+          start_time: string | null
+          stops: Json | null
+          vehicle_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          end_time?: string | null
+          id?: string
+          is_active?: boolean | null
+          route_name: string
+          school_id?: string | null
+          start_time?: string | null
+          stops?: Json | null
+          vehicle_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          end_time?: string | null
+          id?: string
+          is_active?: boolean | null
+          route_name?: string
+          school_id?: string | null
+          start_time?: string | null
+          stops?: Json | null
+          vehicle_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fleet_routes_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fleet_routes_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "fleet_vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fleet_vehicles: {
+        Row: {
+          brand: string | null
+          capacity: number | null
+          created_at: string | null
+          driver_license: string | null
+          driver_name: string | null
+          fuel_type: string | null
+          id: string
+          license_plate: string
+          model: string | null
+          school_id: string | null
+          status: string | null
+          year: number | null
+        }
+        Insert: {
+          brand?: string | null
+          capacity?: number | null
+          created_at?: string | null
+          driver_license?: string | null
+          driver_name?: string | null
+          fuel_type?: string | null
+          id?: string
+          license_plate: string
+          model?: string | null
+          school_id?: string | null
+          status?: string | null
+          year?: number | null
+        }
+        Update: {
+          brand?: string | null
+          capacity?: number | null
+          created_at?: string | null
+          driver_license?: string | null
+          driver_name?: string | null
+          fuel_type?: string | null
+          id?: string
+          license_plate?: string
+          model?: string | null
+          school_id?: string | null
+          status?: string | null
+          year?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fleet_vehicles_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           content: string
@@ -248,6 +596,7 @@ export type Database = {
           is_active: boolean
           name: string
           phone: string | null
+          school_type: Database["public"]["Enums"]["school_type"] | null
           state: string | null
           updated_at: string
           zip_code: string | null
@@ -262,6 +611,7 @@ export type Database = {
           is_active?: boolean
           name: string
           phone?: string | null
+          school_type?: Database["public"]["Enums"]["school_type"] | null
           state?: string | null
           updated_at?: string
           zip_code?: string | null
@@ -276,6 +626,7 @@ export type Database = {
           is_active?: boolean
           name?: string
           phone?: string | null
+          school_type?: Database["public"]["Enums"]["school_type"] | null
           state?: string | null
           updated_at?: string
           zip_code?: string | null
@@ -284,6 +635,265 @@ export type Database = {
           {
             foreignKeyName: "schools_admin_user_id_fkey"
             columns: ["admin_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stockroom_items: {
+        Row: {
+          brand: string | null
+          category: string | null
+          cost_per_unit: number | null
+          created_at: string | null
+          id: string
+          item_name: string
+          location: string | null
+          min_quantity: number | null
+          model: string | null
+          quantity: number | null
+          school_id: string | null
+          supplier_contact: string | null
+          supplier_name: string | null
+          unit: string | null
+        }
+        Insert: {
+          brand?: string | null
+          category?: string | null
+          cost_per_unit?: number | null
+          created_at?: string | null
+          id?: string
+          item_name: string
+          location?: string | null
+          min_quantity?: number | null
+          model?: string | null
+          quantity?: number | null
+          school_id?: string | null
+          supplier_contact?: string | null
+          supplier_name?: string | null
+          unit?: string | null
+        }
+        Update: {
+          brand?: string | null
+          category?: string | null
+          cost_per_unit?: number | null
+          created_at?: string | null
+          id?: string
+          item_name?: string
+          location?: string | null
+          min_quantity?: number | null
+          model?: string | null
+          quantity?: number | null
+          school_id?: string | null
+          supplier_contact?: string | null
+          supplier_name?: string | null
+          unit?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stockroom_items_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stockroom_movements: {
+        Row: {
+          created_at: string | null
+          id: string
+          item_id: string | null
+          movement_date: string | null
+          movement_type: string | null
+          quantity: number | null
+          reason: string | null
+          school_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          item_id?: string | null
+          movement_date?: string | null
+          movement_type?: string | null
+          quantity?: number | null
+          reason?: string | null
+          school_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          item_id?: string | null
+          movement_date?: string | null
+          movement_type?: string | null
+          quantity?: number | null
+          reason?: string | null
+          school_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stockroom_movements_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "stockroom_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stockroom_movements_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stockroom_movements_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_medical_records: {
+        Row: {
+          allergies: string[] | null
+          blood_type: string | null
+          chronic_diseases: string[] | null
+          created_at: string | null
+          dietary_restrictions: string[] | null
+          disabilities: string[] | null
+          doctor_name: string | null
+          doctor_phone: string | null
+          emergency_contacts: Json | null
+          health_insurance: string | null
+          health_insurance_number: string | null
+          id: string
+          medications: string[] | null
+          special_needs: string | null
+          student_id: string
+          surgeries: string[] | null
+          updated_at: string | null
+          vaccination_record: Json | null
+        }
+        Insert: {
+          allergies?: string[] | null
+          blood_type?: string | null
+          chronic_diseases?: string[] | null
+          created_at?: string | null
+          dietary_restrictions?: string[] | null
+          disabilities?: string[] | null
+          doctor_name?: string | null
+          doctor_phone?: string | null
+          emergency_contacts?: Json | null
+          health_insurance?: string | null
+          health_insurance_number?: string | null
+          id?: string
+          medications?: string[] | null
+          special_needs?: string | null
+          student_id: string
+          surgeries?: string[] | null
+          updated_at?: string | null
+          vaccination_record?: Json | null
+        }
+        Update: {
+          allergies?: string[] | null
+          blood_type?: string | null
+          chronic_diseases?: string[] | null
+          created_at?: string | null
+          dietary_restrictions?: string[] | null
+          disabilities?: string[] | null
+          doctor_name?: string | null
+          doctor_phone?: string | null
+          emergency_contacts?: Json | null
+          health_insurance?: string | null
+          health_insurance_number?: string | null
+          id?: string
+          medications?: string[] | null
+          special_needs?: string | null
+          student_id?: string
+          surgeries?: string[] | null
+          updated_at?: string | null
+          vaccination_record?: Json | null
+        }
+        Relationships: []
+      }
+      system_modules: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          display_name: string
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          display_name: string
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          display_name?: string
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+        }
+        Relationships: []
+      }
+      user_module_permissions: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_enabled: boolean | null
+          module_id: string | null
+          school_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_enabled?: boolean | null
+          module_id?: string | null
+          school_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_enabled?: boolean | null
+          module_id?: string | null
+          school_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_module_permissions_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "system_modules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_module_permissions_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_module_permissions_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -360,6 +970,7 @@ export type Database = {
       }
     }
     Enums: {
+      school_type: "tradicional" | "creche"
       secretaria_role:
         | "diretor"
         | "secretario_educacao"
@@ -486,6 +1097,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      school_type: ["tradicional", "creche"],
       secretaria_role: [
         "diretor",
         "secretario_educacao",
