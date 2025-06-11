@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -229,7 +230,17 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ demoUser }) 
         </TabsContent>
 
         <TabsContent value="attendance">
-          <AttendanceManager />
+          <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <UserCheck className="h-5 w-5" />
+                Sistema de Frequência - Chamada
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <AttendanceManager />
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="notifications">

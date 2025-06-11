@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -16,8 +15,17 @@ import {
   CheckCircle,
   Plus,
   Search,
-  Settings
+  Settings,
+  Utensils,
+  Package,
+  Bus
 } from 'lucide-react';
+import { EnrollmentModal } from '../EnrollmentModal';
+import { StudentSearchModal } from '../StudentSearchModal';
+import { DocumentModal } from '../DocumentModal';
+import { CanteenManagement } from '../CanteenManagement';
+import { StockroomManagement } from '../StockroomManagement';
+import { FleetManagement } from '../FleetManagement';
 
 interface SecretaryDashboardProps {
   demoUser: {
@@ -29,6 +37,9 @@ interface SecretaryDashboardProps {
 
 export const SecretaryDashboard: React.FC<SecretaryDashboardProps> = ({ demoUser }) => {
   const [selectedPeriod, setSelectedPeriod] = useState('week');
+  const [enrollmentModalOpen, setEnrollmentModalOpen] = useState(false);
+  const [searchModalOpen, setSearchModalOpen] = useState(false);
+  const [documentModalOpen, setDocumentModalOpen] = useState(false);
 
   const secretaryStats = {
     totalStudents: 847,
@@ -61,7 +72,22 @@ export const SecretaryDashboard: React.FC<SecretaryDashboardProps> = ({ demoUser
   ];
 
   const handleQuickAction = (action: string) => {
-    console.log('Ação rápida:', action);
+    switch (action) {
+      case 'enrollment':
+        setEnrollmentModalOpen(true);
+        break;
+      case 'search':
+        setSearchModalOpen(true);
+        break;
+      case 'document':
+        setDocumentModalOpen(true);
+        break;
+      case 'settings':
+        console.log('Abrir configurações');
+        break;
+      default:
+        console.log('Ação rápida:', action);
+    }
   };
 
   const getPriorityColor = (priority: string) => {
@@ -91,258 +117,224 @@ export const SecretaryDashboard: React.FC<SecretaryDashboardProps> = ({ demoUser
         </CardContent>
       </Card>
 
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Ações Rápidas</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {quickActions.map((action) => (
-              <Button
-                key={action.action}
-                variant="outline"
-                className="h-20 flex flex-col gap-2 hover:bg-muted/50"
-                onClick={() => handleQuickAction(action.action)}
-              >
-                <div className={`p-2 rounded-lg ${action.color}`}>
-                  {action.icon}
-                </div>
-                <span className="text-sm font-medium">{action.title}</span>
-              </Button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total de Alunos</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{secretaryStats.totalStudents}</div>
-            <p className="text-xs text-muted-foreground">+{secretaryStats.todayEnrollments} hoje</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Professores</CardTitle>
-            <GraduationCap className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{secretaryStats.totalTeachers}</div>
-            <p className="text-xs text-muted-foreground">Corpo docente ativo</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Funcionários</CardTitle>
-            <Shield className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{secretaryStats.totalStaff}</div>
-            <p className="text-xs text-muted-foreground">Equipe administrativa</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tarefas Pendentes</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{secretaryStats.pendingTasks}</div>
-            <p className="text-xs text-orange-600">Para concluir</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Documentos Hoje</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{secretaryStats.documentsIssued}</div>
-            <p className="text-xs text-green-600">Emitidos</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Matrículas Hoje</CardTitle>
-            <Plus className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{secretaryStats.todayEnrollments}</div>
-            <p className="text-xs text-blue-600">Processadas</p>
-          </CardContent>
-        </Card>
-      </div>
-
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3 bg-white/60 backdrop-blur-sm">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-white/60 backdrop-blur-sm">
           <TabsTrigger value="overview" className="flex items-center gap-2">
             <TrendingUp className="h-4 w-4" />
-            Visão Geral
+            <span className="hidden sm:inline">Visão Geral</span>
+            <span className="sm:hidden">Geral</span>
           </TabsTrigger>
-          <TabsTrigger value="activities" className="flex items-center gap-2">
-            <Clock className="h-4 w-4" />
-            Atividades
+          <TabsTrigger value="canteen" className="flex items-center gap-2">
+            <Utensils className="h-4 w-4" />
+            <span className="hidden sm:inline">Cantina</span>
+            <span className="sm:hidden">Cantina</span>
           </TabsTrigger>
-          <TabsTrigger value="tasks" className="flex items-center gap-2">
-            <FileText className="h-4 w-4" />
-            Tarefas
+          <TabsTrigger value="stockroom" className="flex items-center gap-2">
+            <Package className="h-4 w-4" />
+            <span className="hidden sm:inline">Almoxarifado</span>
+            <span className="sm:hidden">Almox</span>
+          </TabsTrigger>
+          <TabsTrigger value="fleet" className="flex items-center gap-2">
+            <Bus className="h-4 w-4" />
+            <span className="hidden sm:inline">Frota</span>
+            <span className="sm:hidden">Frota</span>
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="space-y-6">
+            {/* Quick Actions */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Clock className="h-5 w-5" />
-                  Atividades Recentes
-                </CardTitle>
+                <CardTitle>Ações Rápidas</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {recentActivities.map((activity) => (
-                    <div key={activity.id} className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors">
-                      <div className="p-2 bg-green-100 rounded-lg">
-                        {activity.type === 'enrollment' && <Plus className="h-4 w-4 text-green-600" />}
-                        {activity.type === 'document' && <FileText className="h-4 w-4 text-blue-600" />}
-                        {activity.type === 'transfer' && <Users className="h-4 w-4 text-purple-600" />}
-                        {activity.type === 'update' && <Settings className="h-4 w-4 text-orange-600" />}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {quickActions.map((action) => (
+                    <Button
+                      key={action.action}
+                      variant="outline"
+                      className="h-20 flex flex-col gap-2 hover:bg-muted/50"
+                      onClick={() => handleQuickAction(action.action)}
+                    >
+                      <div className={`p-2 rounded-lg ${action.color}`}>
+                        {action.icon}
                       </div>
-                      <div className="flex-1">
-                        <p className="font-medium text-sm">{activity.description}</p>
-                        <p className="text-xs text-muted-foreground">{activity.time}</p>
-                      </div>
-                      <Badge variant="secondary" className="text-xs">
-                        {activity.status === 'completed' ? 'Concluído' : 'Pendente'}
-                      </Badge>
-                    </div>
+                      <span className="text-sm font-medium">{action.title}</span>
+                    </Button>
                   ))}
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Tarefas Pendentes
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {pendingTasks.map((task) => (
-                    <div key={task.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
-                      <div className="flex-1">
-                        <p className="font-medium text-sm">{task.task}</p>
-                        <p className="text-xs text-muted-foreground">Prazo: {task.deadline}</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge className={getPriorityColor(task.priority)}>
-                          {task.priority}
+            {/* Stats Cards */}
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Total de Alunos</CardTitle>
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{secretaryStats.totalStudents}</div>
+                  <p className="text-xs text-muted-foreground">+{secretaryStats.todayEnrollments} hoje</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Professores</CardTitle>
+                  <GraduationCap className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{secretaryStats.totalTeachers}</div>
+                  <p className="text-xs text-muted-foreground">Corpo docente ativo</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Funcionários</CardTitle>
+                  <Shield className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{secretaryStats.totalStaff}</div>
+                  <p className="text-xs text-muted-foreground">Equipe administrativa</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Tarefas Pendentes</CardTitle>
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-orange-600">{secretaryStats.pendingTasks}</div>
+                  <p className="text-xs text-orange-600">Para concluir</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Documentos Hoje</CardTitle>
+                  <FileText className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-green-600">{secretaryStats.documentsIssued}</div>
+                  <p className="text-xs text-green-600">Emitidos</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Matrículas Hoje</CardTitle>
+                  <Plus className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-blue-600">{secretaryStats.todayEnrollments}</div>
+                  <p className="text-xs text-blue-600">Processadas</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Activities and Tasks */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Clock className="h-5 w-5" />
+                    Atividades Recentes
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {recentActivities.map((activity) => (
+                      <div key={activity.id} className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors">
+                        <div className="p-2 bg-green-100 rounded-lg">
+                          {activity.type === 'enrollment' && <Plus className="h-4 w-4 text-green-600" />}
+                          {activity.type === 'document' && <FileText className="h-4 w-4 text-blue-600" />}
+                          {activity.type === 'transfer' && <Users className="h-4 w-4 text-purple-600" />}
+                          {activity.type === 'update' && <Settings className="h-4 w-4 text-orange-600" />}
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-medium text-sm">{activity.description}</p>
+                          <p className="text-xs text-muted-foreground">{activity.time}</p>
+                        </div>
+                        <Badge variant="secondary" className="text-xs">
+                          {activity.status === 'completed' ? 'Concluído' : 'Pendente'}
                         </Badge>
-                        <Button size="sm" variant="outline">
-                          <CheckCircle className="h-4 w-4" />
-                        </Button>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    Tarefas Pendentes
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {pendingTasks.map((task) => (
+                      <div key={task.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+                        <div className="flex-1">
+                          <p className="font-medium text-sm">{task.task}</p>
+                          <p className="text-xs text-muted-foreground">Prazo: {task.deadline}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge className={getPriorityColor(task.priority)}>
+                            {task.priority}
+                          </Badge>
+                          <Button size="sm" variant="outline">
+                            <CheckCircle className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Information Notice */}
+            <Card className="border-purple-200 bg-purple-50">
+              <CardContent className="pt-6">
+                <div className="flex items-start gap-3">
+                  <Shield className="h-5 w-5 text-purple-600 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium text-purple-900">
+                      Painel da Secretaria - Gestão Administrativa
+                    </p>
+                    <p className="text-sm text-purple-700 mt-1">
+                      Como secretária, você tem acesso completo para gerenciar matrículas, emitir documentos, 
+                      cadastrar usuários e administrar os dados da escola. Use as abas acima para acessar os módulos de gestão.
+                    </p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
           </div>
         </TabsContent>
 
-        <TabsContent value="activities">
-          <Card>
-            <CardHeader>
-              <CardTitle>Todas as Atividades</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {recentActivities.map((activity) => (
-                  <div key={activity.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors gap-4">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 bg-blue-100 rounded-lg">
-                        {activity.type === 'enrollment' && <Plus className="h-5 w-5 text-blue-600" />}
-                        {activity.type === 'document' && <FileText className="h-5 w-5 text-green-600" />}
-                        {activity.type === 'transfer' && <Users className="h-5 w-5 text-purple-600" />}
-                        {activity.type === 'update' && <Settings className="h-5 w-5 text-orange-600" />}
-                      </div>
-                      <div>
-                        <h3 className="font-semibold">{activity.description}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          {activity.time}
-                        </p>
-                      </div>
-                    </div>
-                    <Badge variant="secondary">
-                      {activity.status === 'completed' ? 'Concluído' : 'Pendente'}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+        <TabsContent value="canteen">
+          <CanteenManagement />
         </TabsContent>
 
-        <TabsContent value="tasks">
-          <Card>
-            <CardHeader>
-              <CardTitle>Gerenciar Tarefas</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {pendingTasks.map((task) => (
-                  <div key={task.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors gap-4">
-                    <div className="flex-1">
-                      <h3 className="font-semibold">{task.task}</h3>
-                      <p className="text-sm text-muted-foreground">Prazo: {task.deadline}</p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Badge className={getPriorityColor(task.priority)}>
-                        {task.priority}
-                      </Badge>
-                      <Button size="sm" variant="outline">
-                        <CheckCircle className="h-4 w-4 mr-2" />
-                        Concluir
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+        <TabsContent value="stockroom">
+          <StockroomManagement />
+        </TabsContent>
+
+        <TabsContent value="fleet">
+          <FleetManagement />
         </TabsContent>
       </Tabs>
 
-      {/* Information Notice */}
-      <Card className="border-purple-200 bg-purple-50">
-        <CardContent className="pt-6">
-          <div className="flex items-start gap-3">
-            <Shield className="h-5 w-5 text-purple-600 mt-0.5" />
-            <div>
-              <p className="text-sm font-medium text-purple-900">
-                Painel da Secretaria - Gestão Administrativa
-              </p>
-              <p className="text-sm text-purple-700 mt-1">
-                Como secretária, você tem acesso completo para gerenciar matrículas, emitir documentos, 
-                cadastrar usuários e administrar os dados da escola.
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Modals */}
+      <EnrollmentModal open={enrollmentModalOpen} onOpenChange={setEnrollmentModalOpen} />
+      <StudentSearchModal open={searchModalOpen} onOpenChange={setSearchModalOpen} />
+      <DocumentModal open={documentModalOpen} onOpenChange={setDocumentModalOpen} />
     </div>
   );
 };
