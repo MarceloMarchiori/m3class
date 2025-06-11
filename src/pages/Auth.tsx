@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { LogIn, GraduationCap, FileText } from 'lucide-react';
@@ -85,14 +84,6 @@ const Auth = () => {
                 {loading ? "Entrando..." : "Entrar"}
               </Button>
             </form>
-
-            <div className="mt-6 text-center">
-              <Alert>
-                <AlertDescription className="text-sm">
-                  Acesso restrito a usuários autorizados. Novos cadastros são realizados pelo administrador master.
-                </AlertDescription>
-              </Alert>
-            </div>
           </CardContent>
         </Card>
 
