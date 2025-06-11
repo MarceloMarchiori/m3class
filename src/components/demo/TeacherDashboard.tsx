@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,6 +18,9 @@ import {
 } from 'lucide-react';
 import { AttendanceManager } from '../AttendanceManager';
 import { NotificationSystem } from '../NotificationSystem';
+import { ClassListModal } from '../ClassListModal';
+import { LessonDetailsModal } from '../LessonDetailsModal';
+import { StudentListModal } from '../StudentListModal';
 
 interface TeacherDashboardProps {
   demoUser?: {
@@ -30,6 +32,10 @@ interface TeacherDashboardProps {
 
 export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ demoUser }) => {
   const [selectedPeriod, setSelectedPeriod] = useState('week');
+  const [classListModalOpen, setClassListModalOpen] = useState(false);
+  const [lessonDetailsModalOpen, setLessonDetailsModalOpen] = useState(false);
+  const [studentListModalOpen, setStudentListModalOpen] = useState(false);
+  const [attendanceModalOpen, setAttendanceModalOpen] = useState(false);
 
   const metrics = [
     {
@@ -38,7 +44,8 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ demoUser }) 
       change: "+2 este mês",
       trend: "up",
       icon: <Users className="h-5 w-5 text-blue-600" />,
-      color: "bg-blue-100"
+      color: "bg-blue-100",
+      onClick: () => setClassListModalOpen(true)
     },
     {
       title: "Alunos Total",
@@ -46,7 +53,8 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ demoUser }) 
       change: "+12 novos",
       trend: "up", 
       icon: <BookOpen className="h-5 w-5 text-green-600" />,
-      color: "bg-green-100"
+      color: "bg-green-100",
+      onClick: () => setStudentListModalOpen(true)
     },
     {
       title: "Aulas Esta Semana",
@@ -54,7 +62,8 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ demoUser }) 
       change: "3 hoje",
       trend: "neutral",
       icon: <Calendar className="h-5 w-5 text-purple-600" />,
-      color: "bg-purple-100"
+      color: "bg-purple-100",
+      onClick: () => setLessonDetailsModalOpen(true)
     },
     {
       title: "Taxa de Presença",
@@ -62,7 +71,8 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ demoUser }) 
       change: "+3% vs mês passado",
       trend: "up",
       icon: <UserCheck className="h-5 w-5 text-orange-600" />,
-      color: "bg-orange-100"
+      color: "bg-orange-100",
+      onClick: () => setAttendanceModalOpen(true)
     }
   ];
 
@@ -118,10 +128,14 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ demoUser }) 
         </Card>
       )}
 
-      {/* Metrics Cards */}
+      {/* Metrics Cards - Now Clickable */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {metrics.map((metric, index) => (
-          <Card key={index} className="border-0 shadow-md bg-white/80 backdrop-blur-sm">
+          <Card 
+            key={index} 
+            className="border-0 shadow-md bg-white/80 backdrop-blur-sm cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={metric.onClick}
+          >
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
                 <div className={`p-3 rounded-lg ${metric.color}`}>
@@ -284,6 +298,26 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ demoUser }) 
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Modals */}
+      <ClassListModal open={classListModalOpen} onOpenChange={setClassListModalOpen} />
+      <LessonDetailsModal open={lessonDetailsModalOpen} onOpenChange={setLessonDetailsModalOpen} />
+      <StudentListModal open={studentListModalOpen} onOpenChange={setStudentListModalOpen} />
+      
+      {/* Attendance Modal Simulation */}
+      {attendanceModalOpen && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[80vh] overflow-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Sistema de Frequência</h3>
+              <Button variant="outline" onClick={() => setAttendanceModalOpen(false)}>
+                Fechar
+              </Button>
+            </div>
+            <AttendanceManager />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

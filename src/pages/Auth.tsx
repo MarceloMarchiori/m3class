@@ -6,8 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import { LogIn, GraduationCap } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { LogIn, GraduationCap, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const Auth = () => {
@@ -96,8 +96,17 @@ const Auth = () => {
           </CardContent>
         </Card>
 
-        <div className="text-center mt-8 text-sm text-gray-500">
-          © 2025 M3Class - Gestão Escolar
+        <div className="text-center mt-8 space-y-4">
+          <Link to="/documentacao">
+            <Button variant="outline" size="sm" className="flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Documentação do Sistema
+            </Button>
+          </Link>
+          
+          <div className="text-sm text-gray-500">
+            © 2025 M3Class - Gestão Escolar
+          </div>
         </div>
       </div>
     </div>

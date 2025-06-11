@@ -18,11 +18,17 @@ import {
   Settings,
   Utensils,
   Package,
-  Bus
+  Bus,
+  UserPlus
 } from 'lucide-react';
 import { EnrollmentModal } from '../EnrollmentModal';
 import { StudentSearchModal } from '../StudentSearchModal';
 import { DocumentModal } from '../DocumentModal';
+import { StudentListModal } from '../StudentListModal';
+import { TeacherListModal } from '../TeacherListModal';
+import { StaffListModal } from '../StaffListModal';
+import { TaskDetailsModal } from '../TaskDetailsModal';
+import { UserCreationModal } from '../UserCreationModal';
 import { CanteenManagement } from '../CanteenManagement';
 import { StockroomManagement } from '../StockroomManagement';
 import { FleetManagement } from '../FleetManagement';
@@ -40,6 +46,11 @@ export const SecretaryDashboard: React.FC<SecretaryDashboardProps> = ({ demoUser
   const [enrollmentModalOpen, setEnrollmentModalOpen] = useState(false);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [documentModalOpen, setDocumentModalOpen] = useState(false);
+  const [studentListModalOpen, setStudentListModalOpen] = useState(false);
+  const [teacherListModalOpen, setTeacherListModalOpen] = useState(false);
+  const [staffListModalOpen, setStaffListModalOpen] = useState(false);
+  const [taskDetailsModalOpen, setTaskDetailsModalOpen] = useState(false);
+  const [userCreationModalOpen, setUserCreationModalOpen] = useState(false);
 
   const secretaryStats = {
     totalStudents: 847,
@@ -68,7 +79,7 @@ export const SecretaryDashboard: React.FC<SecretaryDashboardProps> = ({ demoUser
     { title: 'Nova Matrícula', icon: <Plus className="h-5 w-5" />, action: 'enrollment', color: 'bg-blue-100 text-blue-600' },
     { title: 'Buscar Aluno', icon: <Search className="h-5 w-5" />, action: 'search', color: 'bg-green-100 text-green-600' },
     { title: 'Emitir Documento', icon: <FileText className="h-5 w-5" />, action: 'document', color: 'bg-purple-100 text-purple-600' },
-    { title: 'Configurações', icon: <Settings className="h-5 w-5" />, action: 'settings', color: 'bg-orange-100 text-orange-600' }
+    { title: 'Cadastrar Usuário', icon: <UserPlus className="h-5 w-5" />, action: 'create-user', color: 'bg-orange-100 text-orange-600' }
   ];
 
   const handleQuickAction = (action: string) => {
@@ -82,11 +93,36 @@ export const SecretaryDashboard: React.FC<SecretaryDashboardProps> = ({ demoUser
       case 'document':
         setDocumentModalOpen(true);
         break;
-      case 'settings':
-        console.log('Abrir configurações');
+      case 'create-user':
+        setUserCreationModalOpen(true);
         break;
       default:
         console.log('Ação rápida:', action);
+    }
+  };
+
+  const handleCardClick = (cardType: string) => {
+    switch (cardType) {
+      case 'students':
+        setStudentListModalOpen(true);
+        break;
+      case 'teachers':
+        setTeacherListModalOpen(true);
+        break;
+      case 'staff':
+        setStaffListModalOpen(true);
+        break;
+      case 'tasks':
+        setTaskDetailsModalOpen(true);
+        break;
+      case 'documents':
+        setDocumentModalOpen(true);
+        break;
+      case 'enrollments':
+        setEnrollmentModalOpen(true);
+        break;
+      default:
+        console.log('Card clicado:', cardType);
     }
   };
 
@@ -167,9 +203,9 @@ export const SecretaryDashboard: React.FC<SecretaryDashboardProps> = ({ demoUser
               </CardContent>
             </Card>
 
-            {/* Stats Cards */}
+            {/* Stats Cards - Now Clickable */}
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
-              <Card>
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleCardClick('students')}>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Total de Alunos</CardTitle>
                   <Users className="h-4 w-4 text-muted-foreground" />
@@ -180,7 +216,7 @@ export const SecretaryDashboard: React.FC<SecretaryDashboardProps> = ({ demoUser
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleCardClick('teachers')}>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Professores</CardTitle>
                   <GraduationCap className="h-4 w-4 text-muted-foreground" />
@@ -191,7 +227,7 @@ export const SecretaryDashboard: React.FC<SecretaryDashboardProps> = ({ demoUser
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleCardClick('staff')}>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Funcionários</CardTitle>
                   <Shield className="h-4 w-4 text-muted-foreground" />
@@ -202,7 +238,7 @@ export const SecretaryDashboard: React.FC<SecretaryDashboardProps> = ({ demoUser
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleCardClick('tasks')}>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Tarefas Pendentes</CardTitle>
                   <Clock className="h-4 w-4 text-muted-foreground" />
@@ -213,7 +249,7 @@ export const SecretaryDashboard: React.FC<SecretaryDashboardProps> = ({ demoUser
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleCardClick('documents')}>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Documentos Hoje</CardTitle>
                   <FileText className="h-4 w-4 text-muted-foreground" />
@@ -224,7 +260,7 @@ export const SecretaryDashboard: React.FC<SecretaryDashboardProps> = ({ demoUser
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleCardClick('enrollments')}>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Matrículas Hoje</CardTitle>
                   <Plus className="h-4 w-4 text-muted-foreground" />
@@ -335,6 +371,11 @@ export const SecretaryDashboard: React.FC<SecretaryDashboardProps> = ({ demoUser
       <EnrollmentModal open={enrollmentModalOpen} onOpenChange={setEnrollmentModalOpen} />
       <StudentSearchModal open={searchModalOpen} onOpenChange={setSearchModalOpen} />
       <DocumentModal open={documentModalOpen} onOpenChange={setDocumentModalOpen} />
+      <StudentListModal open={studentListModalOpen} onOpenChange={setStudentListModalOpen} />
+      <TeacherListModal open={teacherListModalOpen} onOpenChange={setTeacherListModalOpen} />
+      <StaffListModal open={staffListModalOpen} onOpenChange={setStaffListModalOpen} />
+      <TaskDetailsModal open={taskDetailsModalOpen} onOpenChange={setTaskDetailsModalOpen} />
+      <UserCreationModal open={userCreationModalOpen} onOpenChange={setUserCreationModalOpen} />
     </div>
   );
 };

@@ -12,6 +12,7 @@ import Dashboard from "./pages/Dashboard";
 import Auth from "./pages/Auth";
 import Master from "./pages/Master";
 import Teste from "./pages/Teste";
+import Documentation from "./pages/Documentation";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -46,6 +47,8 @@ function App() {
                 } />
                 {/* Página de teste pública - sem proteção de autenticação */}
                 <Route path="/teste" element={<Teste />} />
+                {/* Página de documentação pública */}
+                <Route path="/documentacao" element={<Documentation />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </ImpersonationProvider>
