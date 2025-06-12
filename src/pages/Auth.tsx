@@ -36,21 +36,36 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <div 
+      className="min-h-screen flex items-center justify-center p-4 relative"
+      style={{
+        backgroundImage: `url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23dbeafe;stop-opacity:1" /><stop offset="50%" style="stop-color:%23ffffff;stop-opacity:1" /><stop offset="100%" style="stop-color:%23faf5ff;stop-opacity:1" /></linearGradient></defs><rect width="100%" height="100%" fill="url(%23bg)"/></svg>')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
+      {/* Overlay para melhor contraste */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-purple-500/5 to-pink-500/10"></div>
+      
+      <div className="w-full max-w-md relative z-10">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
-            <div className="bg-blue-600 p-3 rounded-full">
+            <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 p-3 rounded-full shadow-lg">
               <GraduationCap className="h-8 w-8 text-white" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">M3Class</h1>
-          <p className="text-gray-600">Sistema de Gestão Escolar</p>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+            M3Class
+          </h1>
+          <p className="text-gray-700">Sistema de Gestão Escolar</p>
         </div>
 
-        <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+        <Card className="shadow-2xl border-0 bg-white/90 backdrop-blur-md">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl">Acesso ao Sistema</CardTitle>
+            <CardTitle className="text-2xl bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+              Acesso ao Sistema
+            </CardTitle>
             <CardDescription>
               Entre com suas credenciais para continuar
             </CardDescription>
@@ -66,6 +81,7 @@ const Auth = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  className="border-gray-200 focus:border-purple-400 focus:ring-purple-400"
                 />
               </div>
               <div className="space-y-2">
@@ -77,9 +93,14 @@ const Auth = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  className="border-gray-200 focus:border-purple-400 focus:ring-purple-400"
                 />
               </div>
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button 
+                type="submit" 
+                className="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 text-white shadow-lg transition-all duration-300 transform hover:scale-105" 
+                disabled={loading}
+              >
                 <LogIn className="h-4 w-4 mr-2" />
                 {loading ? "Entrando..." : "Entrar"}
               </Button>
@@ -89,13 +110,17 @@ const Auth = () => {
 
         <div className="text-center mt-8 space-y-4">
           <Link to="/documentacao">
-            <Button variant="outline" size="sm" className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex items-center gap-2 border-2 border-gradient bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-pink-600/10 hover:from-blue-600/20 hover:via-purple-600/20 hover:to-pink-600/20 text-purple-700 hover:text-purple-800 shadow-md transition-all duration-300 transform hover:scale-105"
+            >
               <FileText className="h-4 w-4" />
               Documentação do Sistema
             </Button>
           </Link>
           
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-gray-600">
             © 2025 M3Class - Gestão Escolar
           </div>
         </div>
