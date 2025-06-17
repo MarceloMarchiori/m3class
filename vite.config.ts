@@ -19,6 +19,7 @@ export default defineConfig(({ mode }) => ({
       registerType: 'autoUpdate',
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // 3MB
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -49,12 +50,12 @@ export default defineConfig(({ mode }) => ({
         start_url: '/',
         icons: [
           {
-            src: '/icon-192.png',
+            src: '/lovable-uploads/e11bcea5-685a-4d4b-baa7-f826bb022fb2.png',
             sizes: '192x192',
             type: 'image/png'
           },
           {
-            src: '/icon-512.png',
+            src: '/lovable-uploads/e11bcea5-685a-4d4b-baa7-f826bb022fb2.png',
             sizes: '512x512',
             type: 'image/png'
           }

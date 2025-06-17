@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -5,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { LogIn, GraduationCap, FileText, Download } from 'lucide-react';
+import { LogIn, FileText, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
 
@@ -65,8 +66,12 @@ const Auth = () => {
       <div className="w-full max-w-md relative z-10">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
-            <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 p-3 rounded-full shadow-lg">
-              <GraduationCap className="h-8 w-8 text-white" />
+            <div className="bg-white p-2 rounded-2xl shadow-lg border border-gray-200">
+              <img 
+                src="/lovable-uploads/e11bcea5-685a-4d4b-baa7-f826bb022fb2.png" 
+                alt="M3 Software Logo" 
+                className="h-16 w-16 object-contain"
+              />
             </div>
           </div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
@@ -143,7 +148,7 @@ const Auth = () => {
               className="flex items-center gap-2 border-2 bg-gradient-to-r from-green-600/10 via-blue-600/10 to-purple-600/10 hover:from-green-600/20 hover:via-blue-600/20 hover:to-purple-600/20 text-green-700 hover:text-green-800 shadow-md transition-all duration-300 transform hover:scale-105"
             >
               <Download className="h-4 w-4" />
-              📱 Instalar Atalho na Área de Trabalho
+              📱 Instalar App
             </Button>
           </div>
           
