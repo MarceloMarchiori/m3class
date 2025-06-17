@@ -6,8 +6,9 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { LogIn, GraduationCap, FileText } from 'lucide-react';
+import { LogIn, GraduationCap, FileText, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { usePWAInstall } from '@/hooks/usePWAInstall';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
@@ -16,6 +17,7 @@ const Auth = () => {
   const { signIn } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { isInstallable, installPWA } = usePWAInstall();
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,6 +34,16 @@ const Auth = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleInstallPWA = async () => {
+    const installed = await installPWA();
+    if (installed) {
+      toast({
+        title: "App Instalado!",
+        description: "M3Class foi instalado com sucesso na sua área de trabalho.",
+      });
     }
   };
 
@@ -109,16 +121,30 @@ const Auth = () => {
         </Card>
 
         <div className="text-center mt-8 space-y-4">
-          <Link to="/documentacao">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="flex items-center gap-2 border-2 border-gradient bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-pink-600/10 hover:from-blue-600/20 hover:via-purple-600/20 hover:to-pink-600/20 text-purple-700 hover:text-purple-800 shadow-md transition-all duration-300 transform hover:scale-105"
-            >
-              <FileText className="h-4 w-4" />
-              Documentação do Sistema
-            </Button>
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Link to="/documentacao">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex items-center gap-2 border-2 border-gradient bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-pink-600/10 hover:from-blue-600/20 hover:via-purple-600/20 hover:to-pink-600/20 text-purple-700 hover:text-purple-800 shadow-md transition-all duration-300 transform hover:scale-105"
+              >
+                <FileText className="h-4 w-4" />
+                Documentação do Sistema
+              </Button>
+            </Link>
+            
+            {isInstallable && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleInstallPWA}
+                className="flex items-center gap-2 border-2 bg-gradient-to-r from-green-600/10 via-blue-600/10 to-purple-600/10 hover:from-green-600/20 hover:via-blue-600/20 hover:to-purple-600/20 text-green-700 hover:text-green-800 shadow-md transition-all duration-300 transform hover:scale-105"
+              >
+                <Download className="h-4 w-4" />
+                Instalar App
+              </Button>
+            )}
+          </div>
           
           <div className="text-sm text-gray-600">
             © 2025 M3Class - Gestão Escolar
