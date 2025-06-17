@@ -21,7 +21,7 @@ import {
   Bus,
   UserPlus
 } from 'lucide-react';
-import { EnrollmentModal } from '../EnrollmentModal';
+import { EnhancedEnrollmentModal } from '../EnhancedEnrollmentModal';
 import { StudentSearchModal } from '../StudentSearchModal';
 import { DocumentModal } from '../DocumentModal';
 import { StudentListModal } from '../StudentListModal';
@@ -76,7 +76,7 @@ export const SecretaryDashboard: React.FC<SecretaryDashboardProps> = ({ demoUser
   ];
 
   const quickActions = [
-    { title: 'Nova Matrícula', icon: <Plus className="h-5 w-5" />, action: 'enrollment', color: 'bg-blue-100 text-blue-600' },
+    { title: 'Nova Matrícula Completa', icon: <Plus className="h-5 w-5" />, action: 'enrollment', color: 'bg-blue-100 text-blue-600' },
     { title: 'Buscar Aluno', icon: <Search className="h-5 w-5" />, action: 'search', color: 'bg-green-100 text-green-600' },
     { title: 'Emitir Documento', icon: <FileText className="h-5 w-5" />, action: 'document', color: 'bg-purple-100 text-purple-600' },
     { title: 'Cadastrar Usuário', icon: <UserPlus className="h-5 w-5" />, action: 'create-user', color: 'bg-orange-100 text-orange-600' }
@@ -137,7 +137,6 @@ export const SecretaryDashboard: React.FC<SecretaryDashboardProps> = ({ demoUser
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <Card>
         <CardContent className="pt-6">
           <div className="flex items-center gap-4">
@@ -203,7 +202,6 @@ export const SecretaryDashboard: React.FC<SecretaryDashboardProps> = ({ demoUser
               </CardContent>
             </Card>
 
-            {/* Stats Cards - Now Clickable */}
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
               <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleCardClick('students')}>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -272,7 +270,6 @@ export const SecretaryDashboard: React.FC<SecretaryDashboardProps> = ({ demoUser
               </Card>
             </div>
 
-            {/* Activities and Tasks */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
@@ -334,7 +331,6 @@ export const SecretaryDashboard: React.FC<SecretaryDashboardProps> = ({ demoUser
               </Card>
             </div>
 
-            {/* Information Notice */}
             <Card className="border-purple-200 bg-purple-50">
               <CardContent className="pt-6">
                 <div className="flex items-start gap-3">
@@ -367,8 +363,7 @@ export const SecretaryDashboard: React.FC<SecretaryDashboardProps> = ({ demoUser
         </TabsContent>
       </Tabs>
 
-      {/* Modals */}
-      <EnrollmentModal open={enrollmentModalOpen} onOpenChange={setEnrollmentModalOpen} />
+      <EnhancedEnrollmentModal open={enrollmentModalOpen} onOpenChange={setEnrollmentModalOpen} />
       <StudentSearchModal open={searchModalOpen} onOpenChange={setSearchModalOpen} />
       <DocumentModal open={documentModalOpen} onOpenChange={setDocumentModalOpen} />
       <StudentListModal open={studentListModalOpen} onOpenChange={setStudentListModalOpen} />

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -38,6 +37,7 @@ const Auth = () => {
   };
 
   const handleInstallPWA = async () => {
+    console.log('PWA: Botão de instalação clicado');
     const installed = await installPWA();
     if (installed) {
       toast({
@@ -46,6 +46,8 @@ const Auth = () => {
       });
     }
   };
+
+  console.log('PWA: isInstallable =', isInstallable);
 
   return (
     <div 
@@ -133,17 +135,16 @@ const Auth = () => {
               </Button>
             </Link>
             
-            {isInstallable && (
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleInstallPWA}
-                className="flex items-center gap-2 border-2 bg-gradient-to-r from-green-600/10 via-blue-600/10 to-purple-600/10 hover:from-green-600/20 hover:via-blue-600/20 hover:to-purple-600/20 text-green-700 hover:text-green-800 shadow-md transition-all duration-300 transform hover:scale-105"
-              >
-                <Download className="h-4 w-4" />
-                Instalar App
-              </Button>
-            )}
+            {/* PWA Install Button - Sempre visível para debug */}
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleInstallPWA}
+              className="flex items-center gap-2 border-2 bg-gradient-to-r from-green-600/10 via-blue-600/10 to-purple-600/10 hover:from-green-600/20 hover:via-blue-600/20 hover:to-purple-600/20 text-green-700 hover:text-green-800 shadow-md transition-all duration-300 transform hover:scale-105"
+            >
+              <Download className="h-4 w-4" />
+              📱 Instalar Atalho na Área de Trabalho
+            </Button>
           </div>
           
           <div className="text-sm text-gray-600">
