@@ -19,7 +19,8 @@ import {
   Utensils,
   Package,
   Bus,
-  UserPlus
+  UserPlus,
+  Activity
 } from 'lucide-react';
 import { EnhancedEnrollmentModal } from '../EnhancedEnrollmentModal';
 import { StudentSearchModal } from '../StudentSearchModal';
@@ -32,6 +33,7 @@ import { UserCreationModal } from '../UserCreationModal';
 import { CanteenManagement } from '../CanteenManagement';
 import { StockroomManagement } from '../StockroomManagement';
 import { FleetManagement } from '../FleetManagement';
+import { PerformanceMonitor } from '../PerformanceMonitor';
 
 interface SecretaryDashboardProps {
   demoUser: {
@@ -153,7 +155,7 @@ export const SecretaryDashboard: React.FC<SecretaryDashboardProps> = ({ demoUser
       </Card>
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-white/60 backdrop-blur-sm">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 bg-white/60 backdrop-blur-sm">
           <TabsTrigger value="overview" className="flex items-center gap-2">
             <TrendingUp className="h-4 w-4" />
             <span className="hidden sm:inline">Visão Geral</span>
@@ -173,6 +175,11 @@ export const SecretaryDashboard: React.FC<SecretaryDashboardProps> = ({ demoUser
             <Bus className="h-4 w-4" />
             <span className="hidden sm:inline">Frota</span>
             <span className="sm:hidden">Frota</span>
+          </TabsTrigger>
+          <TabsTrigger value="performance" className="flex items-center gap-2">
+            <Activity className="h-4 w-4" />
+            <span className="hidden sm:inline">Performance</span>
+            <span className="sm:hidden">Perf</span>
           </TabsTrigger>
         </TabsList>
 
@@ -360,6 +367,10 @@ export const SecretaryDashboard: React.FC<SecretaryDashboardProps> = ({ demoUser
 
         <TabsContent value="fleet">
           <FleetManagement />
+        </TabsContent>
+
+        <TabsContent value="performance">
+          <PerformanceMonitor />
         </TabsContent>
       </Tabs>
 
