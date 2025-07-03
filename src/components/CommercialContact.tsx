@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -40,6 +41,7 @@ export const CommercialContact: React.FC<CommercialContactProps> = ({
   useEffect(() => {
     const fetchSubscriptionData = async () => {
       try {
+        console.log('Buscando dados de assinatura para escola:', schoolId);
         const { data, error } = await supabase
           .from('school_subscriptions')
           .select('*')
@@ -49,6 +51,8 @@ export const CommercialContact: React.FC<CommercialContactProps> = ({
 
         if (error && error.code !== 'PGRST116') {
           console.error('Erro ao buscar dados da assinatura:', error);
+        } else {
+          console.log('Dados de assinatura encontrados:', data);
         }
 
         setSubscriptionData(data);
@@ -75,6 +79,8 @@ export const CommercialContact: React.FC<CommercialContactProps> = ({
 
     setSending(true);
     try {
+      console.log('Enviando mensagem de contato...');
+      
       // Salvar no banco de dados
       const { error: dbError } = await supabase
         .from('contact_messages')
@@ -86,10 +92,15 @@ export const CommercialContact: React.FC<CommercialContactProps> = ({
           message: contactForm.message
         });
 
-      if (dbError) throw dbError;
+      if (dbError) {
+        console.error('Erro ao salvar no banco:', dbError);
+        throw dbError;
+      }
+
+      console.log('Mensagem salva no banco, enviando email...');
 
       // Enviar email via edge function
-      const { error: emailError } = await supabase.functions.invoke('send-contact-email', {
+      const { data: emailData, error: emailError } = await supabase.functions.invoke('send-contact-email', {
         body: {
           senderName: userName,
           senderEmail: userEmail,
@@ -99,14 +110,21 @@ export const CommercialContact: React.FC<CommercialContactProps> = ({
         }
       });
 
+      console.log('Resposta do envio de email:', emailData, emailError);
+
       if (emailError) {
         console.warn('Erro ao enviar email, mas mensagem foi salva:', emailError);
+        toast({
+          title: "Mensagem salva!",
+          description: "Mensagem salva no sistema. Email pode ter falhado - verifique logs.",
+          variant: "default"
+        });
+      } else {
+        toast({
+          title: "Mensagem enviada!",
+          description: "Nossa equipe entrará em contato em breve."
+        });
       }
-
-      toast({
-        title: "Mensagem enviada!",
-        description: "Nossa equipe entrará em contato em breve."
-      });
 
       setContactForm({ subject: '', message: '' });
     } catch (error) {

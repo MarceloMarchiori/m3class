@@ -21,6 +21,8 @@ import {
 import { Link } from 'react-router-dom';
 
 const Documentation = () => {
+  console.log('Página de documentação carregada');
+  
   const features = [
     {
       icon: <Users className="h-6 w-6" />,
@@ -471,7 +473,7 @@ const Documentation = () => {
                     <FileText className="h-6 w-6 text-blue-600" />
                   </div>
                   <h4 className="font-semibold mb-2">E-mail</h4>
-                  <p className="text-sm font-mono text-blue-600">contato@m3class.com.br</p>
+                  <p className="text-sm font-mono text-blue-600">marcelomatheus92@gmail.com</p>
                   <p className="text-xs text-muted-foreground">Suporte técnico e comercial</p>
                 </div>
                 <div className="text-center">
@@ -479,7 +481,7 @@ const Documentation = () => {
                     <BarChart3 className="h-6 w-6 text-purple-600" />
                   </div>
                   <h4 className="font-semibold mb-2">Chave PIX</h4>
-                  <p className="text-sm font-mono text-purple-600">contato@m3class.com.br</p>
+                  <p className="text-sm font-mono text-purple-600">49.514.934/0001-30</p>
                   <p className="text-xs text-muted-foreground">Para pagamentos de assinatura</p>
                 </div>
               </div>
