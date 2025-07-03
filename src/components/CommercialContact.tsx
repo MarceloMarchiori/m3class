@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -33,7 +33,34 @@ export const CommercialContact: React.FC<CommercialContactProps> = ({
     message: ''
   });
   const [sending, setSending] = useState(false);
+  const [subscriptionData, setSubscriptionData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchSubscriptionData = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('school_subscriptions')
+          .select('*')
+          .eq('school_id', schoolId)
+          .eq('status', 'active')
+          .single();
+
+        if (error && error.code !== 'PGRST116') {
+          console.error('Erro ao buscar dados da assinatura:', error);
+        }
+
+        setSubscriptionData(data);
+      } catch (error) {
+        console.error('Erro ao carregar assinatura:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSubscriptionData();
+  }, [schoolId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,7 +75,8 @@ export const CommercialContact: React.FC<CommercialContactProps> = ({
 
     setSending(true);
     try {
-      const { error } = await supabase
+      // Salvar no banco de dados
+      const { error: dbError } = await supabase
         .from('contact_messages')
         .insert({
           school_id: schoolId,
@@ -58,7 +86,22 @@ export const CommercialContact: React.FC<CommercialContactProps> = ({
           message: contactForm.message
         });
 
-      if (error) throw error;
+      if (dbError) throw dbError;
+
+      // Enviar email via edge function
+      const { error: emailError } = await supabase.functions.invoke('send-contact-email', {
+        body: {
+          senderName: userName,
+          senderEmail: userEmail,
+          subject: contactForm.subject,
+          message: contactForm.message,
+          schoolId: schoolId
+        }
+      });
+
+      if (emailError) {
+        console.warn('Erro ao enviar email, mas mensagem foi salva:', emailError);
+      }
 
       toast({
         title: "Mensagem enviada!",
@@ -78,11 +121,33 @@ export const CommercialContact: React.FC<CommercialContactProps> = ({
     }
   };
 
-  const subscriptionInfo = {
-    plan: 'Plano Pro',
+  const getNextPaymentDate = (dueDay: number) => {
+    const today = new Date();
+    const currentMonth = today.getMonth();
+    const currentYear = today.getFullYear();
+    
+    let nextPaymentDate = new Date(currentYear, currentMonth, dueDay);
+    
+    if (nextPaymentDate <= today) {
+      nextPaymentDate = new Date(currentYear, currentMonth + 1, dueDay);
+    }
+    
+    return nextPaymentDate.toLocaleDateString('pt-BR');
+  };
+
+  const subscriptionInfo = subscriptionData ? {
+    plan: subscriptionData.plan_name === 'basic' ? 'Plano Básico' : 
+          subscriptionData.plan_name === 'premium' ? 'Plano Premium' : 
+          subscriptionData.plan_name === 'enterprise' ? 'Plano Enterprise' : 'Plano Pro',
+    monthlyValue: subscriptionData.monthly_value,
+    dueDate: `Dia ${subscriptionData.due_day} de cada mês`,
+    pixKey: '49.514.934/0001-30',
+    nextPayment: getNextPaymentDate(subscriptionData.due_day)
+  } : {
+    plan: 'Plano Demo',
     monthlyValue: 149.90,
     dueDate: '15 de cada mês',
-    pixKey: 'contato@m3class.com.br',
+    pixKey: '49.514.934/0001-30',
     nextPayment: '15/02/2025'
   };
 
@@ -111,7 +176,7 @@ export const CommercialContact: React.FC<CommercialContactProps> = ({
               <Mail className="h-5 w-5 text-green-600" />
               <div>
                 <p className="font-medium">E-mail</p>
-                <p className="text-sm text-muted-foreground">contato@m3class.com.br</p>
+                <p className="text-sm text-muted-foreground">marcelomatheus92@gmail.com</p>
                 <p className="text-xs text-green-600">Resposta em até 24h</p>
               </div>
             </div>
@@ -120,7 +185,7 @@ export const CommercialContact: React.FC<CommercialContactProps> = ({
               <MessageSquare className="h-5 w-5 text-purple-600" />
               <div>
                 <p className="font-medium">Suporte Técnico</p>
-                <p className="text-sm text-muted-foreground">suporte@m3class.com.br</p>
+                <p className="text-sm text-muted-foreground">marcelomatheus92@gmail.com</p>
                 <p className="text-xs text-purple-600">Seg-Sex: 8h às 18h</p>
               </div>
             </div>
@@ -135,16 +200,26 @@ export const CommercialContact: React.FC<CommercialContactProps> = ({
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="p-3 bg-yellow-50 rounded-lg">
-              <div className="flex items-center justify-between mb-2">
-                <p className="font-medium">{subscriptionInfo.plan}</p>
-                <Badge variant="default">Ativo</Badge>
+            {loading ? (
+              <div className="p-3 bg-gray-50 rounded-lg animate-pulse">
+                <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                <div className="h-8 bg-gray-200 rounded mb-2"></div>
+                <div className="h-3 bg-gray-200 rounded"></div>
               </div>
-              <p className="text-2xl font-bold text-green-600">
-                R$ {subscriptionInfo.monthlyValue.toFixed(2)}
-              </p>
-              <p className="text-sm text-muted-foreground">Valor mensal</p>
-            </div>
+            ) : (
+              <div className="p-3 bg-yellow-50 rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="font-medium">{subscriptionInfo.plan}</p>
+                  <Badge variant={subscriptionData ? "default" : "secondary"}>
+                    {subscriptionData ? "Ativo" : "Demo"}
+                  </Badge>
+                </div>
+                <p className="text-2xl font-bold text-green-600">
+                  R$ {subscriptionInfo.monthlyValue.toFixed(2)}
+                </p>
+                <p className="text-sm text-muted-foreground">Valor mensal</p>
+              </div>
+            )}
 
             <div className="space-y-3">
               <div className="flex items-center gap-3">
@@ -250,7 +325,7 @@ export const CommercialContact: React.FC<CommercialContactProps> = ({
             <Button 
               variant="outline" 
               className="h-auto py-4 flex flex-col gap-2"
-              onClick={() => window.open('mailto:contato@m3class.com.br', '_blank')}
+              onClick={() => window.open('mailto:marcelomatheus92@gmail.com', '_blank')}
             >
               <Mail className="h-6 w-6" />
               <span className="text-sm">E-mail</span>
