@@ -9,6 +9,60 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      attendance_records: {
+        Row: {
+          class_id: string | null
+          created_at: string | null
+          date: string
+          id: string
+          notes: string | null
+          school_id: string | null
+          status: string
+          student_id: string
+          teacher_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          class_id?: string | null
+          created_at?: string | null
+          date?: string
+          id?: string
+          notes?: string | null
+          school_id?: string | null
+          status?: string
+          student_id: string
+          teacher_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          class_id?: string | null
+          created_at?: string | null
+          date?: string
+          id?: string
+          notes?: string | null
+          school_id?: string | null
+          status?: string
+          student_id?: string
+          teacher_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_records_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_records_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       canteen_inventory: {
         Row: {
           category: string | null
@@ -137,6 +191,47 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "canteen_sales_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contact_messages: {
+        Row: {
+          created_at: string | null
+          id: string
+          message: string
+          school_id: string | null
+          sender_email: string
+          sender_name: string
+          status: string | null
+          subject: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          message: string
+          school_id?: string | null
+          sender_email: string
+          sender_name: string
+          status?: string | null
+          subject: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          message?: string
+          school_id?: string | null
+          sender_email?: string
+          sender_name?: string
+          status?: string | null
+          subject?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_messages_school_id_fkey"
             columns: ["school_id"]
             isOneToOne: false
             referencedRelation: "schools"
@@ -394,6 +489,47 @@ export type Database = {
             columns: ["to_school_id"]
             isOneToOne: false
             referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          created_at: string | null
+          data: Json | null
+          id: string
+          is_read: boolean | null
+          message: string
+          title: string
+          type: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          is_read?: boolean | null
+          message: string
+          title: string
+          type: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          title?: string
+          type?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]

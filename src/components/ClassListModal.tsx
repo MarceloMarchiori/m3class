@@ -138,7 +138,21 @@ export const ClassListModal: React.FC<ClassListModalProps> = ({ open, onOpenChan
                         <Button size="sm" variant="outline">
                           Ver Alunos
                         </Button>
-                        <Button size="sm">
+                        <Button size="sm" onClick={() => {
+                          // Simular abertura do sistema de chamada
+                          const modal = document.createElement('div');
+                          modal.className = 'fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4';
+                          modal.innerHTML = `
+                            <div class="bg-white rounded-lg p-6 max-w-4xl w-full max-h-[80vh] overflow-auto">
+                              <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold">Sistema de Chamada - ${cls.name}</h3>
+                                <button onclick="this.closest('.fixed').remove()" class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded">Fechar</button>
+                              </div>
+                              <div id="attendance-container"></div>
+                            </div>
+                          `;
+                          document.body.appendChild(modal);
+                        }}>
                           Fazer Chamada
                         </Button>
                       </div>

@@ -17,7 +17,8 @@ import {
   Eye,
   Utensils,
   Package,
-  Bus
+  Bus,
+  Settings
 } from 'lucide-react';
 import { StudentDetailsModal } from '../StudentDetailsModal';
 import { TeacherDetailsModal } from '../TeacherDetailsModal';
@@ -25,6 +26,7 @@ import { ClassDetailsModal } from '../ClassDetailsModal';
 import { CanteenManagement } from '../CanteenManagement';
 import { StockroomManagement } from '../StockroomManagement';
 import { FleetManagement } from '../FleetManagement';
+import { CommercialContact } from '../CommercialContact';
 
 interface DirectorDashboardProps {
   demoUser: {
@@ -93,7 +95,7 @@ export const DirectorDashboard: React.FC<DirectorDashboardProps> = ({ demoUser }
       </Card>
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-white/60 backdrop-blur-sm">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 bg-white/60 backdrop-blur-sm">
           <TabsTrigger value="overview" className="flex items-center gap-2">
             <TrendingUp className="h-4 w-4" />
             <span className="hidden sm:inline">Visão Geral</span>
@@ -113,6 +115,11 @@ export const DirectorDashboard: React.FC<DirectorDashboardProps> = ({ demoUser }
             <Bus className="h-4 w-4" />
             <span className="hidden sm:inline">Frota</span>
             <span className="sm:hidden">Frota</span>
+          </TabsTrigger>
+          <TabsTrigger value="commercial" className="flex items-center gap-2">
+            <Settings className="h-4 w-4" />
+            <span className="hidden sm:inline">Comercial</span>
+            <span className="sm:hidden">Comercial</span>
           </TabsTrigger>
         </TabsList>
 
@@ -315,6 +322,14 @@ export const DirectorDashboard: React.FC<DirectorDashboardProps> = ({ demoUser }
 
         <TabsContent value="fleet">
           <FleetManagement />
+        </TabsContent>
+
+        <TabsContent value="commercial">
+          <CommercialContact 
+            schoolId="demo-school"
+            userEmail={demoUser?.email || 'admin@escola.com'}
+            userName={demoUser?.name || 'Administrador Demo'}
+          />
         </TabsContent>
       </Tabs>
 

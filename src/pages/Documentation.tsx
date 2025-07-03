@@ -37,13 +37,14 @@ const Documentation = () => {
     {
       icon: <UserCheck className="h-6 w-6" />,
       title: "Sistema de Frequência",
-      description: "Controle de presença dos alunos com chamadas digitais e relatórios automáticos",
+      description: "Controle de presença dos alunos com chamadas digitais e notificações automáticas para responsáveis",
       userTypes: ["Professor", "Diretor", "Secretária"],
       functionalities: [
-        "Chamada digital por turma",
-        "Relatórios de frequência",
-        "Notificações de ausências",
-        "Controle de faltas justificadas"
+        "Chamada digital com alunos pré-marcados como presentes",
+        "Relatórios de frequência em tempo real",
+        "Notificações automáticas para responsáveis em caso de falta",
+        "Controle de faltas justificadas",
+        "Sistema de ausência, presença e atraso"
       ]
     },
     {
@@ -73,13 +74,15 @@ const Documentation = () => {
     {
       icon: <Bell className="h-6 w-6" />,
       title: "Sistema de Notificações",
-      description: "Comunicação eficiente entre escola, professores e responsáveis",
+      description: "Comunicação eficiente entre escola, professores e responsáveis com alertas automáticos",
       userTypes: ["Todos"],
       functionalities: [
         "Notificações em tempo real",
+        "Alertas automáticos de faltas para responsáveis",
         "Avisos por turma",
         "Comunicados gerais",
-        "Alertas de frequência"
+        "Notificações de notas e eventos",
+        "Sistema de leitura e confirmação"
       ]
     },
     {
@@ -158,7 +161,8 @@ const Documentation = () => {
         "Acessar relatórios executivos",
         "Controlar módulos especiais",
         "Supervisionar atividades",
-        "Tomar decisões estratégicas"
+        "Tomar decisões estratégicas",
+        "Acessar contato comercial e informações de pagamento"
       ],
       color: "bg-blue-100 text-blue-800"
     },
@@ -180,10 +184,11 @@ const Documentation = () => {
       icon: <BookOpen className="h-6 w-6" />,
       description: "Educador com foco no processo de ensino-aprendizagem",
       permissions: [
-        "Fazer chamada",
-        "Visualizar turmas",
-        "Enviar notificações",
-        "Acessar dados dos alunos",
+        "Fazer chamada com sistema inteligente",
+        "Visualizar e gerenciar turmas",
+        "Sistema de frequência com alunos pré-marcados",
+        "Acessar lista de alunos completa",
+        "Enviar notificações automáticas",
         "Gerar relatórios de turma"
       ],
       color: "bg-orange-100 text-orange-800"
@@ -194,10 +199,11 @@ const Documentation = () => {
       description: "Pais ou responsáveis com acesso aos dados dos filhos",
       permissions: [
         "Visualizar frequência dos filhos",
-        "Receber notificações",
-        "Acompanhar desempenho",
+        "Receber notificações automáticas de faltas",
+        "Acompanhar desempenho acadêmico",
         "Comunicar com professores",
-        "Acessar documentos"
+        "Acessar documentos",
+        "Receber alertas em tempo real"
       ],
       color: "bg-yellow-100 text-yellow-800"
     },
@@ -439,6 +445,52 @@ const Documentation = () => {
                     Notificações em tempo real entre todos os usuários
                   </p>
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
+
+        {/* Contato Comercial */}
+        <section>
+          <Card className="shadow-lg border-0 bg-gradient-to-r from-green-50 to-blue-50">
+            <CardHeader>
+              <CardTitle className="text-2xl text-center">Contato Comercial</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="text-center">
+                  <div className="p-3 bg-green-100 rounded-full w-fit mx-auto mb-3">
+                    <Bell className="h-6 w-6 text-green-600" />
+                  </div>
+                  <h4 className="font-semibold mb-2">WhatsApp Comercial</h4>
+                  <p className="text-sm font-mono text-green-600">(34) 99799-2661</p>
+                  <p className="text-xs text-muted-foreground">Atendimento comercial e suporte</p>
+                </div>
+                <div className="text-center">
+                  <div className="p-3 bg-blue-100 rounded-full w-fit mx-auto mb-3">
+                    <FileText className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <h4 className="font-semibold mb-2">E-mail</h4>
+                  <p className="text-sm font-mono text-blue-600">contato@m3class.com.br</p>
+                  <p className="text-xs text-muted-foreground">Suporte técnico e comercial</p>
+                </div>
+                <div className="text-center">
+                  <div className="p-3 bg-purple-100 rounded-full w-fit mx-auto mb-3">
+                    <BarChart3 className="h-6 w-6 text-purple-600" />
+                  </div>
+                  <h4 className="font-semibold mb-2">Chave PIX</h4>
+                  <p className="text-sm font-mono text-purple-600">contato@m3class.com.br</p>
+                  <p className="text-xs text-muted-foreground">Para pagamentos de assinatura</p>
+                </div>
+              </div>
+              <div className="mt-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                <h4 className="font-semibold text-yellow-800 mb-2">Informações de Pagamento</h4>
+                <p className="text-sm text-yellow-700">
+                  • Plano Pro: R$ 149,90/mês<br/>
+                  • Vencimento: Dia 15 de cada mês<br/>
+                  • Formas de pagamento: PIX, transferência bancária<br/>
+                  • Suporte incluso no plano
+                </p>
               </div>
             </CardContent>
           </Card>

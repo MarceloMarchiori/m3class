@@ -17,6 +17,7 @@ import {
   Bell,
   Heart
 } from 'lucide-react';
+import { NotificationList } from '../NotificationList';
 
 interface ParentDashboardProps {
   demoUser?: {
@@ -293,6 +294,9 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({ demoUser }) =>
           </div>
         </CardContent>
       </Card>
+
+      {/* Notificações */}
+      <NotificationList userId="demo-parent" userType="responsavel" />
 
       {/* Current Child Info */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

@@ -132,9 +132,28 @@ export const StudentListModal: React.FC<StudentListModalProps> = ({ open, onOpen
                     </div>
                     <div className="flex items-center gap-2">
                       <Badge variant="default">{student.status}</Badge>
-                      <Button size="sm" variant="outline">
-                        Ver Perfil
-                      </Button>
+                      <div className="flex flex-col gap-1">
+                        <Button size="sm" variant="outline">
+                          Ver Perfil
+                        </Button>
+                        <Button size="sm" onClick={() => {
+                          // Simular abertura do sistema de chamada para este aluno
+                          const modal = document.createElement('div');
+                          modal.className = 'fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4';
+                          modal.innerHTML = `
+                            <div class="bg-white rounded-lg p-6 max-w-4xl w-full max-h-[80vh] overflow-auto">
+                              <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold">Fazer Chamada - ${student.name}</h3>
+                                <button onclick="this.closest('.fixed').remove()" class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded">Fechar</button>
+                              </div>
+                              <div id="attendance-container"></div>
+                            </div>
+                          `;
+                          document.body.appendChild(modal);
+                        }}>
+                          Fazer Chamada
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </CardContent>

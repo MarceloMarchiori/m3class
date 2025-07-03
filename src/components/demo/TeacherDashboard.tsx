@@ -16,7 +16,7 @@ import {
   UserCheck,
   Bell
 } from 'lucide-react';
-import { AttendanceManager } from '../AttendanceManager';
+import { AttendanceSystem } from '../AttendanceSystem';
 import { NotificationSystem } from '../NotificationSystem';
 import { ClassListModal } from '../ClassListModal';
 import { LessonDetailsModal } from '../LessonDetailsModal';
@@ -244,17 +244,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ demoUser }) 
         </TabsContent>
 
         <TabsContent value="attendance">
-          <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <UserCheck className="h-5 w-5" />
-                Sistema de Frequência - Chamada
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <AttendanceManager />
-            </CardContent>
-          </Card>
+          <AttendanceSystem />
         </TabsContent>
 
         <TabsContent value="notifications">
@@ -314,7 +304,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ demoUser }) 
                 Fechar
               </Button>
             </div>
-            <AttendanceManager />
+            <AttendanceSystem />
           </div>
         </div>
       )}
