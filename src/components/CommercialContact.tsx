@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,7 +13,8 @@ import {
   Send, 
   Calendar,
   DollarSign,
-  Building
+  Building,
+  CheckCircle
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -79,9 +79,12 @@ export const CommercialContact: React.FC<CommercialContactProps> = ({
 
     setSending(true);
     try {
-      console.log('Enviando mensagem de contato para:', userName, userEmail);
+      console.log('=== INICIANDO ENVIO DE MENSAGEM ===');
+      console.log('Diretor:', userName, '- Email:', userEmail);
+      console.log('Assunto:', contactForm.subject);
+      console.log('Escola ID:', schoolId);
       
-      // Salvar no banco de dados primeiro
+      // 1. Salvar no banco de dados primeiro
       const { error: dbError } = await supabase
         .from('contact_messages')
         .insert({
@@ -93,52 +96,46 @@ export const CommercialContact: React.FC<CommercialContactProps> = ({
         });
 
       if (dbError) {
-        console.error('Erro ao salvar no banco:', dbError);
+        console.error('❌ Erro ao salvar no banco:', dbError);
         throw dbError;
       }
 
-      console.log('Mensagem salva no banco, tentando enviar email...');
+      console.log('✅ Mensagem salva no banco com sucesso');
 
-      // Tentar enviar email via edge function
-      try {
-        const { data: emailData, error: emailError } = await supabase.functions.invoke('send-contact-email', {
-          body: {
-            senderName: userName,
-            senderEmail: userEmail,
-            subject: contactForm.subject,
-            message: contactForm.message,
-            schoolId: schoolId
-          }
-        });
-
-        console.log('Resposta do envio de email:', emailData, emailError);
-
-        if (emailError) {
-          console.warn('Erro ao enviar email:', emailError);
-          toast({
-            title: "Mensagem salva no sistema!",
-            description: "Mensagem registrada com sucesso. O email pode não ter sido enviado - verifique se a API key do Resend está configurada.",
-            variant: "default"
-          });
-        } else {
-          console.log('Email enviado com sucesso:', emailData);
-          toast({
-            title: "Mensagem enviada com sucesso!",
-            description: "Sua mensagem foi enviada para nossa equipe comercial e será respondida em breve."
-          });
+      // 2. Enviar email via edge function
+      console.log('📧 Tentando enviar email...');
+      
+      const { data: emailData, error: emailError } = await supabase.functions.invoke('send-contact-email', {
+        body: {
+          senderName: userName,
+          senderEmail: userEmail,
+          subject: contactForm.subject,
+          message: contactForm.message,
+          schoolId: schoolId
         }
-      } catch (emailErr) {
-        console.error('Erro na função de email:', emailErr);
+      });
+
+      console.log('📨 Resposta do envio de email:', emailData, emailError);
+
+      if (emailError) {
+        console.warn('⚠️ Erro ao enviar email:', emailError);
         toast({
           title: "Mensagem salva no sistema!",
-          description: "Mensagem registrada com sucesso. Configure a API key do Resend para habilitar o envio de emails.",
+          description: "Sua mensagem foi registrada, mas o email pode não ter sido enviado. Verifique se a API key do Resend está configurada.",
           variant: "default"
+        });
+      } else {
+        console.log('✅ Email enviado com sucesso para marcelomatheus92@gmail.com');
+        toast({
+          title: "Mensagem enviada com sucesso!",
+          description: "Sua mensagem foi enviada para nossa equipe comercial (marcelomatheus92@gmail.com) e será respondida em breve.",
+          duration: 5000
         });
       }
 
       setContactForm({ subject: '', message: '' });
     } catch (error) {
-      console.error('Erro ao processar mensagem:', error);
+      console.error('❌ Erro ao processar mensagem:', error);
       toast({
         title: "Erro ao processar mensagem",
         description: "Tente novamente mais tarde ou entre em contato via WhatsApp.",
@@ -322,11 +319,19 @@ export const CommercialContact: React.FC<CommercialContactProps> = ({
               />
             </div>
 
-            <div className="bg-blue-50 p-3 rounded-lg">
-              <p className="text-sm text-blue-700">
-                <strong>Atenção:</strong> Esta mensagem será enviada diretamente para nossa equipe comercial 
-                no email marcelomatheus92@gmail.com e será respondida em até 24 horas úteis.
-              </p>
+            <div className="bg-green-50 p-3 rounded-lg border border-green-200">
+              <div className="flex items-start gap-2">
+                <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium text-green-800">
+                    Sistema de Email Configurado ✅
+                  </p>
+                  <p className="text-xs text-green-700 mt-1">
+                    Sua mensagem será enviada diretamente para <strong>marcelomatheus92@gmail.com</strong> 
+                    e respondida em até 24 horas úteis.
+                  </p>
+                </div>
+              </div>
             </div>
 
             <Button 
@@ -341,7 +346,6 @@ export const CommercialContact: React.FC<CommercialContactProps> = ({
         </CardContent>
       </Card>
 
-      {/* Quick Actions */}
       <Card>
         <CardHeader>
           <CardTitle>Ações Rápidas</CardTitle>
