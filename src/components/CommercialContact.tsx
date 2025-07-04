@@ -79,9 +79,9 @@ export const CommercialContact: React.FC<CommercialContactProps> = ({
 
     setSending(true);
     try {
-      console.log('Enviando mensagem de contato...');
+      console.log('Enviando mensagem de contato para:', userName, userEmail);
       
-      // Salvar no banco de dados
+      // Salvar no banco de dados primeiro
       const { error: dbError } = await supabase
         .from('contact_messages')
         .insert({
@@ -97,41 +97,51 @@ export const CommercialContact: React.FC<CommercialContactProps> = ({
         throw dbError;
       }
 
-      console.log('Mensagem salva no banco, enviando email...');
+      console.log('Mensagem salva no banco, tentando enviar email...');
 
-      // Enviar email via edge function
-      const { data: emailData, error: emailError } = await supabase.functions.invoke('send-contact-email', {
-        body: {
-          senderName: userName,
-          senderEmail: userEmail,
-          subject: contactForm.subject,
-          message: contactForm.message,
-          schoolId: schoolId
-        }
-      });
-
-      console.log('Resposta do envio de email:', emailData, emailError);
-
-      if (emailError) {
-        console.warn('Erro ao enviar email, mas mensagem foi salva:', emailError);
-        toast({
-          title: "Mensagem salva!",
-          description: "Mensagem salva no sistema. Email pode ter falhado - verifique logs.",
-          variant: "default"
+      // Tentar enviar email via edge function
+      try {
+        const { data: emailData, error: emailError } = await supabase.functions.invoke('send-contact-email', {
+          body: {
+            senderName: userName,
+            senderEmail: userEmail,
+            subject: contactForm.subject,
+            message: contactForm.message,
+            schoolId: schoolId
+          }
         });
-      } else {
+
+        console.log('Resposta do envio de email:', emailData, emailError);
+
+        if (emailError) {
+          console.warn('Erro ao enviar email:', emailError);
+          toast({
+            title: "Mensagem salva no sistema!",
+            description: "Mensagem registrada com sucesso. O email pode não ter sido enviado - verifique se a API key do Resend está configurada.",
+            variant: "default"
+          });
+        } else {
+          console.log('Email enviado com sucesso:', emailData);
+          toast({
+            title: "Mensagem enviada com sucesso!",
+            description: "Sua mensagem foi enviada para nossa equipe comercial e será respondida em breve."
+          });
+        }
+      } catch (emailErr) {
+        console.error('Erro na função de email:', emailErr);
         toast({
-          title: "Mensagem enviada!",
-          description: "Nossa equipe entrará em contato em breve."
+          title: "Mensagem salva no sistema!",
+          description: "Mensagem registrada com sucesso. Configure a API key do Resend para habilitar o envio de emails.",
+          variant: "default"
         });
       }
 
       setContactForm({ subject: '', message: '' });
     } catch (error) {
-      console.error('Erro ao enviar mensagem:', error);
+      console.error('Erro ao processar mensagem:', error);
       toast({
-        title: "Erro ao enviar mensagem",
-        description: "Tente novamente mais tarde.",
+        title: "Erro ao processar mensagem",
+        description: "Tente novamente mais tarde ou entre em contato via WhatsApp.",
         variant: "destructive"
       });
     } finally {
@@ -193,7 +203,7 @@ export const CommercialContact: React.FC<CommercialContactProps> = ({
             <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
               <Mail className="h-5 w-5 text-green-600" />
               <div>
-                <p className="font-medium">E-mail</p>
+                <p className="font-medium">E-mail Comercial</p>
                 <p className="text-sm text-muted-foreground">marcelomatheus92@gmail.com</p>
                 <p className="text-xs text-green-600">Resposta em até 24h</p>
               </div>
@@ -275,7 +285,7 @@ export const CommercialContact: React.FC<CommercialContactProps> = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <MessageSquare className="h-5 w-5" />
-            Enviar Mensagem
+            Enviar Mensagem para Equipe Comercial
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -294,7 +304,7 @@ export const CommercialContact: React.FC<CommercialContactProps> = ({
             <div>
               <label className="text-sm font-medium">Assunto *</label>
               <Input
-                placeholder="Ex: Dúvidas sobre plano, suporte técnico..."
+                placeholder="Ex: Dúvidas sobre plano, suporte técnico, alteração de dados..."
                 value={contactForm.subject}
                 onChange={(e) => setContactForm(prev => ({ ...prev, subject: e.target.value }))}
                 required
@@ -304,12 +314,19 @@ export const CommercialContact: React.FC<CommercialContactProps> = ({
             <div>
               <label className="text-sm font-medium">Mensagem *</label>
               <Textarea
-                placeholder="Descreva sua dúvida ou solicitação..."
+                placeholder="Descreva sua dúvida, solicitação ou problema em detalhes..."
                 rows={5}
                 value={contactForm.message}
                 onChange={(e) => setContactForm(prev => ({ ...prev, message: e.target.value }))}
                 required
               />
+            </div>
+
+            <div className="bg-blue-50 p-3 rounded-lg">
+              <p className="text-sm text-blue-700">
+                <strong>Atenção:</strong> Esta mensagem será enviada diretamente para nossa equipe comercial 
+                no email marcelomatheus92@gmail.com e será respondida em até 24 horas úteis.
+              </p>
             </div>
 
             <Button 
@@ -318,7 +335,7 @@ export const CommercialContact: React.FC<CommercialContactProps> = ({
               className="w-full md:w-auto"
             >
               <Send className="h-4 w-4 mr-2" />
-              {sending ? 'Enviando...' : 'Enviar Mensagem'}
+              {sending ? 'Enviando mensagem...' : 'Enviar Mensagem para Equipe Comercial'}
             </Button>
           </form>
         </CardContent>

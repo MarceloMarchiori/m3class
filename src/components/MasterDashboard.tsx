@@ -30,7 +30,6 @@ import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { ModernMetricCard } from './ModernMetricCard';
 import { AdvancedChartCard } from './AdvancedChartCard';
-import { DashboardFilters } from './DashboardFilters';
 import { FinancialDashboard } from './FinancialDashboard';
 import { MessagingSystem } from './MessagingSystem';
 import { SchoolCreationForm } from './SchoolCreationForm';
@@ -330,11 +329,6 @@ export const MasterDashboard = () => {
             </div>
           </div>
           
-          <DashboardFilters 
-            selectedPeriod={selectedPeriod}
-            onPeriodChange={setSelectedPeriod}
-            onRefresh={fetchData}
-          />
         </div>
 
         {/* Modern Metric Cards */}
